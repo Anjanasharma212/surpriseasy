@@ -1,7 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react"; 
+import Header from "./Header";
+import Main from "./Main";
+import Footer from "./Footer";
 
-const HelloWorld = ({ greeting }) => {
-  return <h1>{greeting}</h1>;
+const HelloWorld = () => {
+  return (
+    <div>
+      <Header />
+      <Main />
+      <Footer />
+    </div>
+  );
 };
 
 export default HelloWorld;

@@ -2,17 +2,18 @@
 // like app/views/layouts/application.html.erb. All it does is render <div>Hello React</div> at the bottom
 // of the page.
 
+import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import { createRoot } from "react-dom/client";
+import HelloWorld from "../components/HelloWorld";
 
-const Hello = (props) => {
-  return <h1>Hello!! Welcome to {props.name} </h1>;
-};
+// const Hello = (props) => {
+//   return <h1>Hello!! Welcome to {props.name} </h1>;
+// };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const rootElement = document.getElementById("hello-react"); 
+  const rootElement = document.getElementById("hello-react");
   if (rootElement) {
-    const root = createRoot(rootElement); 
-    root.render(<Hello name="SurpriSeasy" />); 
+    createRoot(rootElement).render(<HelloWorld />);
   }
 });
