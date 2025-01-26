@@ -1,19 +1,22 @@
-// Run this example by adding <%= javascript_pack_tag 'hello_react' %> to the head of your layout file,
-// like app/views/layouts/application.html.erb. All it does is render <div>Hello React</div> at the bottom
-// of the page.
-
-import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import { createRoot } from "react-dom/client";
-import HelloWorld from "../components/HelloWorld";
+import Layout from "../src/components/Layout";
+import HelloReact from "../src/components/HelloReact";
+import GiftGenerator from "../src/components/GiftGenerator";
+import GroupIndex from "../src/components/GroupIndex";
 
-// const Hello = (props) => {
-//   return <h1>Hello!! Welcome to {props.name} </h1>;
-// };
+const mountReactComponent = (id, Component) => {
+  const rootElement = document.getElementById(id);
+  if (rootElement) {
+    createRoot(rootElement).render(
+    <Layout>
+      <Component />
+    </Layout>);
+  }
+};
 
 document.addEventListener("DOMContentLoaded", () => {
-  const rootElement = document.getElementById("hello-react");
-  if (rootElement) {
-    createRoot(rootElement).render(<HelloWorld />);
-  }
+  mountReactComponent("react-root", HelloReact); 
+  mountReactComponent("gift-generator-root", GiftGenerator);
+  mountReactComponent("my-group-root", GroupIndex);
 });
