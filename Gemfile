@@ -64,3 +64,4 @@ end
 
 gem "shakapacker", "= 8.1"
 gem "pry"
+gem 'devise'
