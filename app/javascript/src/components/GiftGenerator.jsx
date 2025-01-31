@@ -5,14 +5,17 @@ import giftCard from "../../images/gift-g1.jpeg";
 const GiftGenerator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: '',
-    userId: 1,
-    email: '',
-    groupName: '',
-    participantNames: [''],
-    eventDate: '',
-    amount: '',
+    group_name: '',
+    event_date: '',
+    budget: '',
     message: '',
+    user_attributes: {
+      email: '',  
+      name: ''
+    },
+    participants_attributes: [
+      { user_attributes: { email: '' } }
+    ]
   });
 
   const handleNextStep = () => {
@@ -26,20 +29,28 @@ const GiftGenerator = () => {
   const handleInputChange = (e, index = null) => {
     const { name, value } = e.target;
   
-    if (name === 'participantNames' && index !== null) {
-      const updatedParticipants = [...formData.participantNames];
-      updatedParticipants[index] = value;
-      setFormData({ ...formData, participantNames: updatedParticipants });
+    if (name === 'participants' && index !== null) {
+      const updatedParticipants = [...formData.participants_attributes];
+      updatedParticipants[index] = { 
+        user_attributes: { ...updatedParticipants[index].user_attributes, email: value } 
+      };
+      setFormData(prev => ({ ...prev, participants_attributes: updatedParticipants }));
+
+    } else if (name ==='email' || name ==='name'){
+        setFormData(prev => ({ 
+        ...prev, 
+        user_attributes: { ...prev.user_attributes, [name]: value } 
+      }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
-  
+
   const addParticipant = () => {
-    setFormData({ 
-      ...formData, 
-      participantNames: [...formData.participantNames, '']
-    });
+    setFormData(prev => ({
+      ...prev,
+      participants_attributes: [...prev.participants_attributes, { user_attributes: { email: '' } }]
+    }));
   };
   
   const handleStepChange = (e) => {
@@ -52,28 +63,16 @@ const GiftGenerator = () => {
 
   const handleSubmit = async (e = null) => {
     if (e) e.preventDefault();
-    // const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-  
-    const requestData = {
-      group_name: formData.groupName,
-      user_id: 1, 
-      budget: parseFloat(formData.amount),
-      participants: [2, 3, 4],
-      // participants: formData.participantNames,
-      event_date: formData.eventDate,
-      message: formData.message,
-      // email: formData.email
-      // group_code: "ABC123", 
-    };
-    console.log('Form submitted:', requestData);
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    console.log('Form submitted:', formData);
     try {
       const response = await fetch('/groups', { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // 'X-CSRF-Token': csrfToken
+          'X-CSRF-Token': csrfToken
         },
-        body: JSON.stringify({ group: requestData }),
+        body: JSON.stringify({ group: formData }),
       });
   
       const data = await response.json();
@@ -115,7 +114,7 @@ const GiftGenerator = () => {
                     autoCapitalize="sentences"
                     spellCheck="false"
                     placeholder="Fill in your name..."
-                    value={formData.name}
+                    value={formData.user_attributes.name}
                     onChange={handleInputChange}
                   />
                   <div className="remove"></div>
@@ -126,16 +125,16 @@ const GiftGenerator = () => {
             {currentStep === 2 && (
               <>
                 <label>Participants' Names:</label>
-                {formData.participantNames.map((participant, index) => (
+                {formData.participants_attributes.map((participant, index) => (
                   <div className="container-flex" key={index}>
                     <input
-                      type="text"
-                      name="participantNames"
+                      type="email"
+                      name="participants"
                       placeholder={`Participant ${index + 1}`}
-                      value={participant}
+                      value={participant.user_attributes?.email || ''}
                       onChange={(e) => handleInputChange(e, index)}
                     />
-                    {index === formData.participantNames.length - 1 && (
+                    {index === formData.participants_attributes.length - 1 && (
                       <button type="button" onClick={addParticipant}>+</button>
                     )}
                   </div>
@@ -145,18 +144,18 @@ const GiftGenerator = () => {
 
             {currentStep === 3 && (
               <>
-                <label htmlFor="groupName">What do you want to draw names for?</label>
+                <label htmlFor="group_name">What do you want to draw names for?</label>
                 <div className="container-flex">
                   <input
                     type="text"
-                    name="groupName"
-                    id="groupName"
+                    name="group_name"
+                    id="group_name"
                     maxLength="32"
                     autoCorrect="off"
                     autoCapitalize="sentences"
                     spellCheck="false"
                     placeholder="Enter a Group Name..."
-                    value={formData.groupName}
+                    value={formData.group_name}
                     onChange={handleInputChange}
                   />
                   <div className="remove"></div>
@@ -170,14 +169,14 @@ const GiftGenerator = () => {
                 <div className="container-flex">
                   <input
                     type="date"
-                    name="eventDate"
-                    id="eventDate"
+                    name="event_date"
+                    id="event_date"
                     maxLength="32"
                     autoCorrect="off"
                     autoCapitalize="sentences"
                     spellCheck="false"
                     placeholder="Select Date..."
-                    value={formData.eventDate}
+                    value={formData.event_date}
                     onChange={handleInputChange}
                   />
                   <div className="remove"></div>
@@ -187,18 +186,18 @@ const GiftGenerator = () => {
 
             {currentStep === 5 && (
               <>
-                <label htmlFor="amount">How much should people spend?</label>
+                <label htmlFor="budget">How much should people spend?</label>
                 <div className="container-flex">
                   <input
                     type="text"
-                    name="amount"
-                    id="amount"
+                    name="budget"
+                    id="budget"
                     maxLength="32"
                     autoCorrect="off"
                     autoCapitalize="sentences"
                     spellCheck="false"
-                    placeholder="Enter a gift Amount"
-                    value={formData.amount}
+                    placeholder="Enter a gift budget"
+                    value={formData.budget}
                     onChange={handleInputChange}
                   />
                   <div className="remove"></div>
@@ -240,7 +239,7 @@ const GiftGenerator = () => {
                     autoCapitalize="sentences"
                     spellCheck="false"
                     placeholder="Find in your email address..."
-                    value={formData.email}
+                    value={formData.user_attributes.email}
                     onChange={handleInputChange}
                   />
                   <div className="remove"></div>

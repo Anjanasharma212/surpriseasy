@@ -10,8 +10,8 @@ const CelebrationCard = () => {
         alt="gifts"
         className="img-fluid mb-3"
       />
-      <h1 className="fs-3 fw-bold">nmn</h1>
-      <p className="text-muted">Hi dfdf, good to see you again!</p>
+      <h1 className="fs-3 fw-bold">Name of current Participants</h1>
+      <p className="text-muted">Hi Abc, good to see you again!</p>
       <div className="d-flex flex-column gap-2">
         <a href="#" className="btn btn-primary">
           Thursday, January 30, 2025
