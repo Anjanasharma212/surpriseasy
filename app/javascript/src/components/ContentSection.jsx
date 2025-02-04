@@ -1,5 +1,4 @@
 import React from 'react';
-// import { Link } from 'react-router-dom';
 
 const ContentSection = () => {
   return (
@@ -15,9 +14,6 @@ const ContentSection = () => {
         <li>Ask your Secret Santa anonymous questions</li>
       </ul>
       <div className="container-button">
-        {/* <Link to="/groups" className="button" data-gtm-id="home-index-add-lottery" data-gtm-title="add-lottery">
-            Start Drawing Names
-          </Link> */}
         <a 
           className="button" 
           href={window.location.origin + '/gift-generator'} 
