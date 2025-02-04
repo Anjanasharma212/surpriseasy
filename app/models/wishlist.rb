@@ -1,5 +1,4 @@
 class Wishlist < ApplicationRecord
-  belongs_to :user
-  belongs_to :group
-  has_many :items
+  belongs_to :participant  
+  has_many :items, dependent: :destroy
 end
