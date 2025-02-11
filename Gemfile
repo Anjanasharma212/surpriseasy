@@ -56,6 +56,11 @@ group :development do
   gem "web-console"
 end
 
+group :development do
+  gem 'letter_opener'
+  gem "pry"
+end
+
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
@@ -63,5 +68,6 @@ group :test do
 end
 
 gem "shakapacker", "= 8.1"
-gem "pry"
 gem 'devise'
+gem 'sidekiq'
+gem 'devise_invitable'

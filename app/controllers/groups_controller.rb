@@ -11,7 +11,7 @@ class GroupsController < ApplicationController
   end 
 
   def show
-    binding.pry
+    # binding.pry
     @group = current_user.groups.find(params[:id])
     render json: {
       user_email: current_user.email,
