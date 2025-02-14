@@ -1,0 +1,102 @@
+
+.group-index-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.group-index-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.group-card {
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #e5e7eb;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.group-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.group-card-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #007bff;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.group-card-name:hover {
+  text-decoration: underline;
+}
+
+.group-event-date {
+  text-decoration: none;
+}
+
+.group-event-date p {
+  font-weight: bold;
+  color: #333;
+  transition: color 0.2s ease-in-out;
+}
+
+.group-event-date:hover p {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.group-participants {
+  font-size: 14px;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.group-delete-button {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 18px;
+  transition: color 0.2s ease-in-out;
+}
+
+.group-delete-button:hover {
+  color: #555;
+}
+
+.group-create-button {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: #007bff;
+  color: white;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+  font-weight: 600;
+  transition: background 0.3s ease-in-out;
+}
+
+.group-create-button:hover {
+  background: #0056b3;
+}
+
+/* wishlis-items  */
+.wishlist-item-icon {
+  border-radius: 5px;
+  object-fit: cover;
+}
