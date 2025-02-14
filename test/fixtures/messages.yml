@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  group: one
+  sender_id: 1
+  receiver_id: 1
+  message: MyText
+  is_anonymous: false
+  read: false
+
+two:
+  group: two
+  sender_id: 1
+  receiver_id: 1
+  message: MyText
+  is_anonymous: false
+  read: false
