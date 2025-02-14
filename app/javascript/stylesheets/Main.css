@@ -2,6 +2,8 @@
 @import './GiftGenerator.css';
 @import './Header.css';
 @import './Layout.css';
+@import './ItemList.css';
+@import './GroupIndex.css';
 
 .right-align {
   margin-left: auto;

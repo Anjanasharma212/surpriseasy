@@ -8,7 +8,15 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   resources :groups, only: [:create, :show, :index]
+  resources :items, only: [:index, :show] do 
+    collection do 
+      get :filters
+    end 
+  end 
+  resources :wishlists, only: [:show, :create]
+
   get '/gift-generator', to: 'groups#gift_generator'
+  
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker

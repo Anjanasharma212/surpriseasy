@@ -37,7 +37,8 @@ const Header = () => {
 
             <NavDropdown title="Services" id="basic-nav-dropdown" className="nav-dropdown-custom">
               <NavDropdown.Item href="/gift-generator">Start Drawing Name</NavDropdown.Item>
-              <NavDropdown.Item href="/services/wishlists">My Wishlist</NavDropdown.Item>
+              {/* <NavDropdown.Item href="/wishlists/:id">My Wishlist</NavDropdown.Item> */}
+              {/* <NavDropdown.Item href={`/wishlists/${wishlistId}`}>My Wishlist</NavDropdown.Item> */}
               <NavDropdown.Item href="/groups">My Group Page</NavDropdown.Item>
               <NavDropdown.Item href="/services/drawn-name">My Drawn Name</NavDropdown.Item>
               <NavDropdown.Item href="/users/sign_in">Sign in </NavDropdown.Item>

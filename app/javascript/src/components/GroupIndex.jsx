@@ -1,53 +1,82 @@
-import React from "react";
-import GroupDetails from "./GroupDetails";
+import React, { useEffect, useState } from "react";
+import { FaTrashAlt } from "react-icons/fa";
 
 const GroupIndex = () => {
+  const [groups, setGroups] = useState([]);
+
+  useEffect(() => {
+    fetch("/groups.json", {
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setGroups(Array.isArray(data) ? data : []);
+      })
+      .catch((error) => console.error("Error fetching groups:", error));
+  }, []);
+  console.log(groups);
+
   return (
-    <div className="container py-5">
-      <div className="col-md-12 ">
-        <div className="col-md-4 mb-4">
-          <GroupDetails groupId={199}/>
-        </div>
-        
-        <div className="col-md-4 mb-4">
-          <div className="card shadow-sm p-4">
-            <h2 className="fs-4 fw-semibold">My Drawn Name</h2>
-            <a href="#" className="btn btn-primary mt-3">
-              My Drawn Name
-            </a>
-          </div>
-        </div>
+    <div className="group-index-container">
+    <h1 className="group-index-title">My Celebrations</h1>
 
-        <div className="col-md-4 mb-4">
-          <div className="card shadow-sm p-4">
-            <h2 className="fs-4 fw-semibold">My Wish List</h2>
-            <p className="text-muted">Tell everyone what gifts you'd like!</p>
-            <a href="/items" className="btn btn-primary mt-3">
-              Make a Wish List
-            </a>
-          </div>
-        </div>
+  <div className="space-y-4">
+    {Array.isArray(groups) && groups.length > 0 ? (
+      groups.map((group) => (
+        <div key={group.id} className="group-card">
+          <div>
+            <h2 className="text-blue-600 text-lg font-semibold">
+              {group.name}
+            </h2>
 
-        <div className="col-md-4 mb-4">
-          <div className="card shadow-sm p-4">
-            <h2 className="fs-4 fw-semibold">Wish List</h2>
-            <p className="text-muted">Group Member who are drawing Name</p>
+            <h5>
+              <a href={`/groups/${group.id}`} className="group-card-name">
+                {group.group_name}
+              </a>
+            </h5>
 
-            <div className="wishlist-details mt-3">
-              <div className="participant-row mb-3">
-                <div className="participant-info d-flex align-items-center">
-                  
-                </div>
-              </div>
-            </div>
-            <a href="#" className="btn btn-primary mt-3">
-              Add a children wishlist
+            <a href={`/groups/group/${group.id}`} className="group-event-date">
+              <p>Event Date:{" "}
+                {new Date(group.event_date).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
             </a>
+
+            <p className="group-participants">
+              Participants:{" "}
+              {group.participants && group.participants.length > 0
+                ? group.participants
+                    .filter((participant) => participant.user)
+                    .map((participant) => participant.user.name)
+                    .join(", ")
+                : "No members"}
+            </p>
           </div>
+
+          <button className="group-delete-button">
+            <FaTrashAlt size={16} />
+          </button>
         </div>
-      </div>
-    </div>
+      ))
+    ) : (
+      <p className="text-gray-600 text-center">No celebrations found.</p>
+    )}
+  </div>
+
+  <a href="/gift-generator" className="group-create-button">
+    Create a new group →
+  </a>
+</div>
+
   );
-}
+};
 
 export default GroupIndex;

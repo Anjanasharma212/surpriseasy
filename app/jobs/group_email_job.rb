@@ -3,7 +3,6 @@ class GroupEmailJob < ApplicationJob
 
   def perform(group_id)
     group = Group.find(group_id)
-    # user = User.find(user_id)
 
     GroupMailer.group_created_email(group.user, group).deliver_later
 
