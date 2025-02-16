@@ -8,6 +8,14 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   resources :groups, only: [:create, :show, :index]
+
+  resources :groups do
+    resources :messages, only: [:index, :create]
+    resources :participants do
+      resources :wishlists
+    end
+  end
+
   resources :items, only: [:index, :show] do 
     collection do 
       get :filters

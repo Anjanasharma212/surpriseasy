@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import GroupMessages from "./GroupMessages";
 
 const GroupShow = ()=> {
   const groupElement = document.getElementById("participants-details");
@@ -28,7 +29,6 @@ const GroupShow = ()=> {
   if (loading) return <div>Loading group data...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  console.log("Group ID", groupId)
   return (
     <div className="container py-5">
       <div className="col-md-12 ">
@@ -57,7 +57,7 @@ const GroupShow = ()=> {
             </div>
           </div>
         </div>
-                 
+
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm p-4">
             <h2 className="fs-4 fw-semibold">My Drawn Name</h2>
@@ -76,7 +76,7 @@ const GroupShow = ()=> {
             </a>
           </div>
         </div>
-
+              
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm p-4">
             <h2 className="fs-4 fw-semibold">Wish Lists</h2>
@@ -86,7 +86,9 @@ const GroupShow = ()=> {
               group.participants.map(({ participant_id, email, wishlist_id, wishlist_items_count, wishlist_items }) => (
                 <div key={participant_id} className="participant-row mb-3 d-flex align-items-center justify-content-between">
                   {wishlist_id ? (
-                     <strong>{email}</strong>
+                    <a href={`/groups/${groupId}/participants/${participant_id}/wishlists/${wishlist_id}`} className="participant-name">
+                      {email}
+                    </a>
                   ) : (
                     <span className="participant-name">{email} (No Wishlist)</span>
                   )}
@@ -119,6 +121,8 @@ const GroupShow = ()=> {
             <a href="#" className="btn btn-primary mt-3">Add a children's wishlist</a>
           </div>
         </div>
+
+        <GroupMessages groupId={groupId} />
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ const GroupIndex = () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        console.log("API Response:", data);
         setGroups(Array.isArray(data) ? data : []);
       })
       .catch((error) => console.error("Error fetching groups:", error));
@@ -30,7 +31,7 @@ const GroupIndex = () => {
         <div key={group.id} className="group-card">
           <div>
             <h2 className="text-blue-600 text-lg font-semibold">
-              {group.name}
+              {group.group_name}
             </h2>
 
             <h5>

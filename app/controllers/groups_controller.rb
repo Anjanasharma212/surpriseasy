@@ -4,7 +4,7 @@ class GroupsController < ApplicationController
   def gift_generator;end
 
   def index
-    @groups = Group.joins(:participants).where(participants: { user_id: current_user.id }).includes(participants: :user)
+    @groups = Group.where(id: Participant.where(user_id: current_user.id).pluck(:group_id))
   
     respond_to do |format|
       format.html
@@ -29,7 +29,6 @@ class GroupsController < ApplicationController
   end
 
   def create
-    binding.pry
     @group = Group.new(group_params)
 
     if @group.save
@@ -81,7 +80,7 @@ class GroupsController < ApplicationController
       :budget, 
       :message, 
       user_attributes: [:email, :name], 
-      participants_attributes: [user_attributes: [:email]]
+      participants_attributes: [user_attributes: [:email, :name]]
     )
   end 
 end
