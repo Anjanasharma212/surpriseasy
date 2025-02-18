@@ -1,0 +1,85 @@
+
+.card {
+  background: white;
+  padding: 20px;
+  margin: 37px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.name {
+  background-color: #e9f5ff;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 22px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.wishlist-section, .hobbies-section, .question-section, .wishlist-prompt, .giftfinder-section {
+  padding: 15px;
+  background: #ffffff;
+  border-radius: 8px;
+  margin: 10px 0;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.wishlist-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.wishlist-count {
+  font-size: 14px;
+  color: #888;
+}
+
+.wishlist-placeholder {
+  font-size: 14px;
+  color: #666;
+}
+
+.wishlist-action {
+  display: block;
+  margin-top: 5px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.button {
+  display: inline-block;
+  padding: 10px 15px;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.wishlist-button {
+  background-color: #ffc107;
+  color: black;
+}
+
+.giftfinder-button {
+  background-color: #007bff;
+}
+
+.group-page-link {
+  margin-top: 15px;
+}
+
+.group-page-link a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}

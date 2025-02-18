@@ -7,6 +7,7 @@ import GroupIndex from "../src/components/GroupIndex";
 import ItemList from "../src/components/ItemList";
 import GroupShow from "../src/components/GroupShow";
 import WishlistShow from "../src/components/WishlistShow.jsx";
+import DrawnName from "../src/components/DrawnName.jsx";
 
 const mountReactComponent = (id, Component) => {
   const rootElement = document.getElementById(id);
@@ -25,4 +26,5 @@ document.addEventListener("DOMContentLoaded", () => {
   mountReactComponent("items-list", ItemList);
   mountReactComponent("participants-details", GroupShow);
   mountReactComponent("wishlist-items", WishlistShow);
+  mountReactComponent("drawn-name", DrawnName);
 });

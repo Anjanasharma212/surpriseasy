@@ -5,6 +5,7 @@
 @import './ItemList.css';
 @import './GroupIndex.css';
 @import './GroupMessages.css';
+@import './DrawnName.css';
 
 .right-align {
   margin-left: auto;

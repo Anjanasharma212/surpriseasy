@@ -50,8 +50,10 @@ class GroupsController < ApplicationController
       event_date: group.event_date,
       budget: group.budget,
       logged_in_participant: participant ? {
+        id: participant.id,
         name: participant.user.name,
-        email: participant.user.email
+        email: participant.user.email,
+        drawn_name_id: participant.drawn_name_id
       } : nil,
       participants: group.participants.map do |participant|
         wishlist = participant.wishlists.first 

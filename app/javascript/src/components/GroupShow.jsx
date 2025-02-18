@@ -7,13 +7,12 @@ const GroupShow = ()=> {
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   useEffect(() => {
     fetch(`/groups/${groupId}.json`)
       .then((res) => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
+        if (!res.ok) throw new Error("Network response was not ok");
         return res.json();
       })
       .then((data) => {
@@ -25,6 +24,26 @@ const GroupShow = ()=> {
         setLoading(false);
       });
   }, [groupId]);
+
+  const handleDrawName = (participantId) => {
+    setIsDrawing(true);
+    setError(null);
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    fetch(`/participants/${participantId}/my_drawn_name.json`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", 'X-CSRF-Token': csrfToken },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.drawn_name_id) {
+          window.location.href = `/participants/${data.drawn_name_id}/my_drawn_name`;
+        } else {
+          setError("No available participants left.");
+        }
+      })
+      .catch(() => setError("Failed to fetch drawn name"))
+      .finally(() => setIsDrawing(false));
+  };
 
   if (loading) return <div>Loading group data...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -61,12 +80,28 @@ const GroupShow = ()=> {
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm p-4">
             <h2 className="fs-4 fw-semibold">My Drawn Name</h2>
-            <a href="#" className="btn btn-primary mt-3">
-              My Drawn Name
-            </a>
+            {group?.logged_in_participant?.drawn_name_id ? (
+              <a
+                href={`/participants/${group.logged_in_participant.drawn_name_id}/my_drawn_name`}
+                className="btn btn-primary mt-3"
+              >
+                My Drawn Name
+              </a>
+            ) : (
+              <>
+                <button
+                  className="btn btn-success mt-3"
+                  onClick={() => handleDrawName(group.logged_in_participant.id)}
+                  disabled={isDrawing}
+                >
+                  {isDrawing ? "Drawing..." : "Draw Name"}
+                </button>
+                {error && <p className="text-danger mt-2">{error}</p>}
+              </>
+            )}
           </div>
         </div>
-  
+
         <div className="col-md-4 mb-4">
           <div className="card shadow-sm p-4">
             <h2 className="fs-4 fw-semibold">My Wish List</h2>
