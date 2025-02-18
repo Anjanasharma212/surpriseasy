@@ -1,5 +1,6 @@
 class GroupsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_group, only: [:destroy]
 
   def gift_generator;end
 
@@ -36,6 +37,14 @@ class GroupsController < ApplicationController
       render json: { success: "Group created successfully!"}, status: :created
     else
       render json: { errors: @group.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    if @group.destroy!
+      render json: { message: "Group deleted successfully" }, status: :ok
+    else
+      render json: { error: "Failed to delete group" }, status: :unprocessable_entity
     end
   end
 
@@ -85,4 +94,8 @@ class GroupsController < ApplicationController
       participants_attributes: [user_attributes: [:email, :name]]
     )
   end 
+
+  def set_group
+    @group = Group.find(params[:id])
+  end
 end

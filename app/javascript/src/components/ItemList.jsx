@@ -17,7 +17,6 @@ const ItemList = () => {
   }, []);
 
   useEffect(() => {
-    console.log("🔍 useParams() ID:", id);
     fetch(`http://localhost:3000/wishlists/${id}`)
       .then((response) => response.json())
       .then((data) => {
@@ -32,14 +31,6 @@ const ItemList = () => {
       setWishList(JSON.parse(savedWishlist));
     }
   }, []);
-  
-  // const toggleWishlist = (item) => {
-  //   if (wishlist.some((wishItem) => wishItem.id === item.id)) {
-  //     setWishList(wishlist.filter((wishItem) => wishItem.id !== item.id));
-  //   } else {
-  //     setWishList([...wishlist, item]);
-  //   }
-  // };
 
   const toggleWishlist = (item) => {
     let updatedWishlist;

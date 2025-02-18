@@ -64,7 +64,6 @@ const GiftGenerator = () => {
   const handleSubmit = async (e = null) => {
     if (e) e.preventDefault();
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    console.log('Form submitted:', formData);
     try {
       const response = await fetch('/groups', { 
         method: 'POST',
