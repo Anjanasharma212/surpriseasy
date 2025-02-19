@@ -7,7 +7,7 @@
 # Group.destroy_all
 # User.destroy_all
 
-# Create Users
+# Ensure at least 5 users exist
 users = []
 5.times do |i|
   email = "user#{i + 1}@example.com"
@@ -25,7 +25,7 @@ groups = []
 3.times do |i|
   groups << Group.create!(
     group_name: "Group #{i + 1}",
-    user: users.sample,
+    user: users.sample, # The group creator
     budget: rand(1000..5000),
     event_name: "Event #{i + 1}",
     event_date: Time.now + rand(1..10).days,
@@ -34,10 +34,10 @@ groups = []
   )
 end
 
-# Create Participants
+# Create Participants for each group
 participants = []
 groups.each do |group|
-  group_users = users.sample([3, users.size].min) 
+  group_users = users.sample([3, users.size].min) # Select 3 or more users for each group
   group_users.each do |user|
     participants << Participant.create!(
       user: user,
@@ -46,7 +46,7 @@ groups.each do |group|
     )
   end
 
-  # Ensure at least one participant is present
+  # Ensure at least one participant exists in the group
   if group.participants.empty?
     user = users.sample
     participants << Participant.create!(
@@ -57,6 +57,7 @@ groups.each do |group|
   end
 end
 
+# Sample Categories
 categories = ["Electronics", "Fashion", "Accessories", "Toys", "Books"]
 ages = ["12 years and under", "12 - 18 years", "18 - 25 years", "25 - 35 years", "35 - 50 years", "50 years and over"]
 genders = ["Male", "Female", "Unisex"]
@@ -79,11 +80,10 @@ end
 wishlists = []
 participants.each do |participant|
   next unless participant.persisted?
-  wishlists << Wishlist.create!(
-    participant: participant
-  )
+  wishlists << Wishlist.create!(participant: participant)
 end
 
+# Attach items to wishlists
 wishlists.each do |wishlist|
   selected_items = items.sample(3)
   selected_items.each do |item|
@@ -94,24 +94,49 @@ wishlists.each do |wishlist|
   end
 end
 
-# Create Messages
+# Create Messages (Group & Anonymous)
 110.times do |i|
   group = groups.sample
-  sender = group.users.sample 
+  sender = group.users.sample
+  is_anonymous = [true, false].sample
 
-  Message.create!(
+  # Get available receivers (excluding sender)
+  available_receivers = group.users - [sender]
+
+  message_attributes = {
     group: group,
     sender: sender,
-    message: "This is group message #{i + 1}",
-    is_anonymous: [true, false].sample
-  )
+    message: "This is message #{i + 1}",
+    is_anonymous: is_anonymous
+  }
+
+  if is_anonymous
+    if available_receivers.any?
+      message_attributes[:receiver] = available_receivers.sample
+    else
+      # Convert to regular group message if no receiver is available
+      message_attributes[:is_anonymous] = false
+      message_attributes[:receiver] = nil
+    end
+  else
+    # Regular group message should NOT have a receiver
+    message_attributes[:receiver] = nil
+  end
+
+  Message.create!(message_attributes)
 end
 
+# Create Assignments (Ensure Giver ≠ Receiver)
 5.times do |i|
   group = groups.sample
-  participants_in_group = group.participants
+  participants_in_group = group.participants.to_a # Convert to array for safe sampling
+
   if participants_in_group.size >= 2
-    giver, receiver = participants_in_group.sample(2) 
+    giver, receiver = participants_in_group.sample(2)
+    while giver == receiver
+      receiver = participants_in_group.sample # Ensure unique giver & receiver
+    end
+
     Assignment.create!(
       group: group,
       giver: giver,
@@ -120,7 +145,8 @@ end
   end
 end
 
-puts "Seeding completed successfully!"
+puts "✅ Seeding completed successfully!"
+
 
 # user1 = User.create(name: "John Doe", email: "john.doe@example.com", password: "password")
 

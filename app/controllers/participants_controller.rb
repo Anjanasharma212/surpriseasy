@@ -61,8 +61,11 @@ class ParticipantsController < ApplicationController
   def participant_json(drawn_participant)
     {
       participant_id: @participant.id,
-      drawn_name_id: drawn_participant.id,
-      drawn_name: drawn_participant.user.name
+      group_id: @participant.group_id,
+        drawn_name: drawn_participant ? { 
+        id: drawn_participant.user.id, 
+        name: drawn_participant.user.name 
+      } : nil
     }
   end
 

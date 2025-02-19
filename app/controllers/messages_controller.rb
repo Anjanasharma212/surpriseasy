@@ -4,17 +4,27 @@ class MessagesController < ApplicationController
   before_action :check_participant, only: [:index, :create]
 
   def index
-    @messages = @group.messages.includes(:sender).order(created_at: :asc)
+    @messages = @group.messages.includes(:sender).where(is_anonymous: false).order(created_at: :asc)
     render json: @messages.map{|msg| format_message(msg)}
   end
 
   def create 
+    is_anonymous = params[:is_anonymous].to_s == "true"
+    receiver = User.find_by(id: params[:receiver_id]) if is_anonymous
+
+    if is_anonymous && (!receiver || !@group.users.include?(receiver))
+      return render json: { error: "Invalid recipient" }, status: :unprocessable_entity
+    end
+
     @message = @group.messages.new(
       sender: current_user,
-      message: params[:message]
-    )
+      receiver: receiver,
+      message: params[:message],
+      is_anonymous: is_anonymous  
+    )   
 
-    if @message.save
+    if @message.save 
+      MessageJob.perform_later(@message.id) if @message.is_anonymous?
       render json: format_message(@message), status: :created
     else
       render json: { error: "Message could not be sent" }, status: :unprocessable_entity
@@ -37,9 +47,10 @@ class MessagesController < ApplicationController
 
   def format_message(msg)
     {
-      id: msg.id,
-      sender_name: msg.sender.name,
+      id: msg.id,   
+      sender_name: msg.is_anonymous? ? "Anonymous" : msg.sender.name,
       message: msg.message,
+      receiver_id: msg.receiver_id,
       sent_at: msg.created_at
     }
   end
