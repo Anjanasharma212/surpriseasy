@@ -21,18 +21,20 @@ const GroupMessages = ({ groupId }) => {
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    
+
     const response = await fetch(`/groups/${groupId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        'X-CSRF-Token': csrfToken
+        "X-CSRF-Token": csrfToken
       },
-      body: JSON.stringify({ message: newMessage }),
+      body: JSON.stringify({ message: { content: newMessage, is_anonymous: false }})
     });
 
     if (response.ok) {
-      const messageData = await response.json();
+      const responseData = await response.json();
+      const messageData = responseData.message;
+
       setMessages([...messages, messageData]);
       setNewMessage("");
     } else {
@@ -54,10 +56,10 @@ const GroupMessages = ({ groupId }) => {
                 <div className="message-header">
                   <span className="sender-name">{msg.sender_name}</span>
                   <span className="message-time">
-                    {new Date(msg.sent_at).toLocaleString()}
+                    {msg.sent_at ? new Date(msg.sent_at).toLocaleString() : "Unknown Time"}
                   </span>
                 </div>
-                <p className="message-content">{msg.message}</p>
+                <p className="message-content">{msg.content}</p>
               </div>
             ))
           ) : (

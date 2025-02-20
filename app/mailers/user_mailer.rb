@@ -4,7 +4,7 @@ class UserMailer < ApplicationMailer
   def anonymous_message(message)
     return unless message.present? && message.is_anonymous? && message.receiver.present?
 
-    @message_content = message.message
+    @message_content = message.content
 
     mail(
       to: message.receiver.email,

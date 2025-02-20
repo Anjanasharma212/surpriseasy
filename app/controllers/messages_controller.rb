@@ -8,48 +8,43 @@ class MessagesController < ApplicationController
     render json: @messages.map{|msg| format_message(msg)}
   end
 
-  def create 
-    is_anonymous = params[:is_anonymous].to_s == "true"
-    receiver = User.find_by(id: params[:receiver_id]) if is_anonymous
+  def create
+    @message = @group.messages.new(message_params.merge(sender: current_user))
 
-    if is_anonymous && (!receiver || !@group.users.include?(receiver))
-      return render json: { error: "Invalid recipient" }, status: :unprocessable_entity
-    end
-
-    @message = @group.messages.new(
-      sender: current_user,
-      receiver: receiver,
-      message: params[:message],
-      is_anonymous: is_anonymous  
-    )   
-
-    if @message.save 
+    if @message.save
       MessageJob.perform_later(@message.id) if @message.is_anonymous?
-      render json: format_message(@message), status: :created
+      render json: { success: "Message sent successfully!", message: format_message(@message) }, status: :created
     else
-      render json: { error: "Message could not be sent" }, status: :unprocessable_entity
+      render json: { errors: @message.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   private
 
   def set_group
-    @group = Group.find(params[:group_id])
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "Group not found" }, status: :not_found
+    @group = Group.find_by(id: params[:group_id])
+    render json: { error: "Group not found" }, status: :not_found unless @group
   end
 
   def check_participant
-    unless @group.users.include?(current_user)
-      render json: { error: "You are not a participant in this group" }, status: :forbidden
+    return if @group.users.include?(current_user)
+
+    render json: { error: "You are not a participant in this group" }, status: :forbidden
+  end
+
+  def message_params
+    if params[:message].is_a?(String)
+      Rails.logger.error "Expected params[:message] to be a Hash, but got String: #{params[:message].inspect}"
+      raise ActionController::BadRequest, "Invalid parameters format"
     end
+    params.require(:message).permit(:content, :receiver_id, :is_anonymous)
   end
 
   def format_message(msg)
     {
-      id: msg.id,   
+      id: msg.id,
       sender_name: msg.is_anonymous? ? "Anonymous" : msg.sender.name,
-      message: msg.message,
+      content: msg.content,
       receiver_id: msg.receiver_id,
       sent_at: msg.created_at
     }

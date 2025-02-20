@@ -4,7 +4,7 @@ class Message < ApplicationRecord
   belongs_to :receiver, class_name: 'User', foreign_key: 'receiver_id', optional: true
   has_many :notifications, as: :notifiable
 
-  validates :message, presence: true
+  validates :content, presence: true
   before_validation :set_is_anonymous
 
   private

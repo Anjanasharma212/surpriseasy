@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const DrawnName = () => {
   const drawnElement = document.getElementById("drawn-name");
-  const participantId = drawnElement ? drawnElement.dataset.participantId : null;
+  const participantId = drawnElement?.dataset?.participantId || null;
 
   const [drawnName, setDrawnName] = useState(null);
   const [groupId, setGroupId] = useState(null);
@@ -17,9 +17,13 @@ const DrawnName = () => {
       return;
     }
 
-    fetch(`/participants/${participantId}/my_drawn_name.json`, { method: "GET" })
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchDrawnName = async () => {
+      try {
+        const response = await fetch(`/participants/${participantId}/my_drawn_name.json`, { method: "GET" })
+        if (!response.ok) throw new Error("Failed to fetch drawn name");
+
+        const data = await response.json();
+
         if (data.error) {
           setError(data.error);
         } else {
@@ -30,23 +34,17 @@ const DrawnName = () => {
           );
           setGroupId(data.group_id);
         }
-      })
-      .catch(() => setError("Failed to fetch drawn name"));
+      } catch {
+        setError("Failed to fetch drawn name.");
+      }
+    };
+
+    fetchDrawnName();
   }, [participantId]);
 
   const sendAnonymousMessage = async () => {
-    if (!message.trim()) {
-      setError("Message cannot be empty.");
-      return;
-    }
-
-    if (!drawnName || !drawnName.id) {
-      setError("Recipient not found. Please try again later.");
-      return;
-    }
-
-    if (!groupId) {
-      setError("Group ID is missing.");
+    if (!message.trim() || !drawnName?.id || !groupId) {
+      setError("Please fill all required fields before sending.");
       return;
     }
 
@@ -54,12 +52,12 @@ const DrawnName = () => {
     setError(null);
     setSuccess(null);
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
-
     const requestData = {
-      message,
-      receiver_id: drawnName.id,
-      is_anonymous: "true"
+      message: {
+        content: message,
+        receiver_id: drawnName.id,
+        is_anonymous: true,
+      },
     };
 
     try {
@@ -67,9 +65,9 @@ const DrawnName = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.getAttribute("content"),
         },
-        body: JSON.stringify(requestData)
+        body: JSON.stringify(requestData),
       });
 
       const responseData = await response.json();
@@ -78,9 +76,9 @@ const DrawnName = () => {
         setSuccess("Message sent anonymously!");
         setMessage("");
       } else {
-        setError(responseData.error || "Failed to send message.");
+        setError(responseData.errors?.join(", ") || "Failed to send message.");
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred while sending the message.");
     } finally {
       setLoading(false);
@@ -92,7 +90,7 @@ const DrawnName = () => {
       <div className="card">
         <h1 className="card-title">My Drawn Name</h1>
         <div className="name">
-          <h1 className="notranslate">{error ? error : drawnName?.name || "Loading..."}</h1>
+          <h1 className="notranslate">{error || drawnName?.name || "Loading..."}</h1>
         </div>
 
         {drawnName && (
@@ -102,13 +100,10 @@ const DrawnName = () => {
               <p className="wishlist-count">0 gifts</p>
               <div className="wishlist-placeholder">
                 <p>No gifts requested yet</p>
-                <a href="#" className="wishlist-action">Ask {drawnName.name} anonymously to enter a wish list</a>
+                <a href="#" className="wishlist-action">
+                  Ask {drawnName.name} anonymously to enter a wish list
+                </a>
               </div>
-            </div>
-
-            <div className="hobbies-section">
-              <h2>Hobbies and interests</h2>
-              <p>{drawnName.name} has not added any hobbies or interests.</p>
             </div>
 
             <div className="question-section max-w-lg mx-auto p-4">
@@ -137,19 +132,8 @@ const DrawnName = () => {
                 } text-white`}
                 disabled={loading}
               >
-                {loading ? "Sending..." : "Send Mail"}
+                {loading ? "Sending..." : "Send Message"}
               </button>
-            </div>
-
-            <div className="wishlist-prompt">
-              <p>You <strong>have not</strong> yet added your own wish list or hobbies.</p>
-              <a href="#" className="button wishlist-button">Make a wish list</a>
-            </div>
-
-            <div className="giftfinder-section">
-              <h2>Gift Finder</h2>
-              <p>Find a gift for {drawnName.name}.</p>
-              <a href="#" className="button giftfinder-button">Search in Gift Finder</a>
             </div>
           </>
         )}
