@@ -34,7 +34,6 @@ const GroupMessages = ({ groupId }) => {
     if (response.ok) {
       const responseData = await response.json();
       const messageData = responseData.message;
-
       setMessages([...messages, messageData]);
       setNewMessage("");
     } else {
@@ -45,37 +44,38 @@ const GroupMessages = ({ groupId }) => {
   if (loading) return <div>Loading messages...</div>;
 
   return (
-    <div className="group-messages-wrapper">
-      <div className="group-messages-container">
-        <h3 className="group-messages-title">Group Messages</h3>
-
-        <div className="messages-box">
+    <div className="group-show-card messages-card">
+      <div className="group-card-content">
+        <h2 className="group-card-title">Group Messages</h2>
+        
+        <div className="messages-list">
           {messages.length > 0 ? (
             messages.map((msg) => (
-              <div key={msg.id} className="message-card">
+              <div key={msg.id} className="message-item">
                 <div className="message-header">
-                  <span className="sender-name">{msg.sender_name}</span>
+                  <span className="message-sender">{msg.sender_name}</span>
                   <span className="message-time">
                     {msg.sent_at ? new Date(msg.sent_at).toLocaleString() : "Unknown Time"}
                   </span>
                 </div>
-                <p className="message-content">{msg.content}</p>
+                <p className="message-text">{msg.content}</p>
               </div>
             ))
           ) : (
-            <p className="no-messages">No messages yet.</p>
+            <p className="no-messages-text">No messages yet.</p>
           )}
         </div>
 
-        <div className="message-input-box">
+        <div className="message-input-container">
           <input
             type="text"
             className="message-input"
             placeholder="Write a message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
           />
-          <button className="send-button" onClick={sendMessage}>
+          <button className="send-btn" onClick={sendMessage}>
             ➤
           </button>
         </div>

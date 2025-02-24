@@ -1,16 +1,22 @@
-@import './Content.css';
-@import './GiftGenerator.css';
+/* @import './Content.css';
+@import './GroupGenerator.css';
 @import './Header.css';
 @import './Layout.css';
 @import './ItemList.css';
 @import './GroupIndex.css';
 @import './GroupMessages.css';
+@import './DrawnName.css'; */
+@import './Layout.css';
+@import './GroupGenerator.css';
+@import './GroupIndex.css';
+@import './GroupShow.css';
 @import './DrawnName.css';
+@import './ItemList.css';
 
-.right-align {
-  margin-left: auto;
-}
 
+/* Base styles and header separation */
 body {
-  font-family: Arial, sans-serif;
+  background-color: #FFF8F0;
+  margin: 0;
+  padding: 0;
 }

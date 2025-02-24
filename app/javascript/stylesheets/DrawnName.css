@@ -1,85 +1,274 @@
+/* Base styles */
+.page-wrapper {
+  background-color: #f0f2f5 !important;
+  min-height: 100vh;
+  width: 100%;
+}
 
-.card {
+/* Page Layout */
+.drawn-page-container {
+  max-width: 1200px;
+  margin: 80px auto 40px;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) 2fr;
+  gap: 24px;
+}
+
+/* Left Side - My Drawn Name Section */
+.drawn-name-section {
   background: white;
-  padding: 20px;
-  margin: 37px;
   border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  width: 400px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.drawn-name-display {
+  padding: 24px;
   text-align: center;
+  border-bottom: 1px solid #e4e6eb;
 }
 
-.card-title {
-  font-size: 24px;
-  font-weight: bold;
+.drawn-name-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 16px;
 }
 
-.name {
-  background-color: #e9f5ff;
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 22px;
-  font-weight: bold;
-  margin: 10px 0;
+.drawn-name-text {
+  font-size: 28px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
 }
 
-.wishlist-section, .hobbies-section, .question-section, .wishlist-prompt, .giftfinder-section {
-  padding: 15px;
-  background: #ffffff;
-  border-radius: 8px;
-  margin: 10px 0;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.wishlist-title {
-  font-size: 18px;
-  font-weight: bold;
+/* Wishlist Button */
+.wishlist-button {
+  width: 100%;
+  padding: 14px 16px;
+  background: #4087f1;
+  color: white;
+  border: none;
+  font-weight: 500;
+  font-size: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 }
 
 .wishlist-count {
   font-size: 14px;
-  color: #888;
+  opacity: 0.9;
 }
 
-.wishlist-placeholder {
-  font-size: 14px;
-  color: #666;
+/* No Gifts Section */
+.no-gifts-section {
+  padding: 24px;
+  text-align: center;
+  background: #f8f9fa;
 }
 
-.wishlist-action {
-  display: block;
-  margin-top: 5px;
-  color: #007bff;
+.ask-anonymous-link {
+  color: #4087f1;
   text-decoration: none;
-}
-
-.button {
+  font-size: 14px;
+  margin-top: 8px;
   display: inline-block;
-  padding: 10px 15px;
-  background: #007bff;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
+}
+
+/* Info Section */
+.info-section {
+  padding: 24px;
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.info-header h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.info-text {
+  color: #65676b;
   font-size: 14px;
-  margin-top: 10px;
+  margin-bottom: 24px;
+}
+
+/* Question Input */
+.drawn-question-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e4e6eb;
+  border-radius: 6px;
+  resize: none;
+  min-height: 100px;
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+
+.drawn-question-input:focus {
+  outline: none;
+  border-color: #4087f1;
+  box-shadow: 0 0 0 2px rgba(64, 135, 241, 0.2);
+}
+
+/* Send Button */
+.drawn-send-button {
+  width: 100%;
+  padding: 12px;
+  background: #4087f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 15px;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.wishlist-button {
-  background-color: #ffc107;
-  color: black;
+.drawn-send-button:hover {
+  background: #3576d8;
 }
 
-.giftfinder-button {
-  background-color: #007bff;
+.drawn-send-button:disabled {
+  background: #e4e6eb;
+  color: #BCC0C4;
+  cursor: not-allowed;
 }
 
-.group-page-link {
-  margin-top: 15px;
+/* Right Side - Gift Finder Section */
+.gift-finder-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  padding: 24px;
 }
 
-.group-page-link a {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: bold;
+.gift-finder-header {
+  font-size: 20px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+}
+
+.search-container {
+  margin-bottom: 24px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e4e6eb;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4087f1;
+  box-shadow: 0 0 0 2px rgba(64, 135, 241, 0.2);
+}
+
+/* Gift Finder Popup */
+.gift-finder-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.gift-finder-popup {
+  text-align: center;
+  padding: 32px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.popup-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.popup-text {
+  color: #65676b;
+  margin-bottom: 16px;
+}
+
+.search-button {
+  background: #4087f1;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-button:hover {
+  background: #3576d8;
+}
+
+/* Status Messages */
+.drawn-error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.drawn-success-message {
+  color: #198754;
+  font-size: 14px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .drawn-page-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .drawn-page-container {
+    margin-top: 60px;
+    padding: 0 16px;
+  }
+
+  .drawn-name-text {
+    font-size: 24px;
+  }
+
+  .drawn-name-section,
+  .gift-finder-section {
+    border-radius: 8px;
+  }
+
+  .info-section,
+  .drawn-name-display,
+  .no-gifts-section {
+    padding: 16px;
+  }
+
+  .gift-finder-section {
+    padding: 16px;
+  }
 }

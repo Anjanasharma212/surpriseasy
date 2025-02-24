@@ -1,5 +1,6 @@
 import React from "react";
 import { Navbar, Nav, NavDropdown, Container } from "react-bootstrap";
+import { FaUser, FaGift, FaSignInAlt, FaSignOutAlt, FaList } from "react-icons/fa"; // Import icons
 
 const Header = () => {
 
@@ -24,28 +25,37 @@ const Header = () => {
   };
 
   return (
-    <Navbar expand="lg" className="navbar-custom">
+    <Navbar expand="lg" className="navbar-custom shadow-sm fixed-top">
       <Container>
         
-        <Navbar.Brand href="/">SurpriSeasy</Navbar.Brand>
+        {/* Logo / Brand */}
+        <Navbar.Brand href="/" className="fw-bold fs-4">
+          🎁 SurpriSeasy
+        </Navbar.Brand>
+
+        {/* Toggle Button for Mobile */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
 
+        {/* Navbar Links */}
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             <Nav.Link href="/" className="nav-link-custom">Home</Nav.Link>
             <Nav.Link href="/about" className="nav-link-custom">About</Nav.Link>
 
+            {/* Services Dropdown */}
             <NavDropdown title="Services" id="basic-nav-dropdown" className="nav-dropdown-custom">
-              <NavDropdown.Item href="/gift-generator">Start Drawing Name</NavDropdown.Item>
-              {/* <NavDropdown.Item href="/wishlists/:id">My Wishlist</NavDropdown.Item> */}
-              {/* <NavDropdown.Item href={`/wishlists/${wishlistId}`}>My Wishlist</NavDropdown.Item> */}
-              <NavDropdown.Item href="/groups">My Group Page</NavDropdown.Item>
-              <NavDropdown.Item href="/services/drawn-name">My Drawn Name</NavDropdown.Item>
-              <NavDropdown.Item href="/users/sign_in">Sign in </NavDropdown.Item>
-              <NavDropdown.Item as="button" onClick={handleLogout}>Sign Out</NavDropdown.Item>
+              <NavDropdown.Item href="/gift-generator"><FaGift className="me-2" /> Start Drawing Name</NavDropdown.Item>
+              <NavDropdown.Item href="/items"><FaList className="me-2" /> My Wishlist</NavDropdown.Item>
+              <NavDropdown.Item href="/groups"><FaGift className="me-2" /> My Group Page</NavDropdown.Item>
+              <NavDropdown.Item href="/services/drawn-name"><FaGift className="me-2" /> My Drawn Name</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="/users/sign_in"><FaSignInAlt className="me-2" /> Sign In</NavDropdown.Item>
+              <NavDropdown.Item as="button" onClick={handleLogout}><FaSignOutAlt className="me-2 text-danger" /> Sign Out</NavDropdown.Item>
             </NavDropdown>
 
-            <Nav.Link href="/profile" className="nav-link-custom">Profile</Nav.Link>
+            <Nav.Link href="/profile" className="nav-link-custom">
+              <FaUser className="me-2" /> Profile
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
