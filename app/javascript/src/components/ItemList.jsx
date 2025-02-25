@@ -77,7 +77,6 @@ const ItemList = () => {
   return (
     <div className="main-container">
       <div className="item-card">
-        {/* Search Section */}
         <div className="search-container">
           <input
             type="text"
@@ -98,7 +97,6 @@ const ItemList = () => {
         {/* Filter Section */}
         <FilterBar setItems={setItems} />
 
-        {/* Items Grid */}
         <div className="item-row">
           {items.length > 0 ? (
             items.map((item) => (

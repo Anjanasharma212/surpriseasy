@@ -27,22 +27,16 @@ const Header = () => {
   return (
     <Navbar expand="lg" className="navbar-custom shadow-sm fixed-top">
       <Container>
-        
-        {/* Logo / Brand */}
         <Navbar.Brand href="/" className="fw-bold fs-4">
           🎁 SurpriSeasy
         </Navbar.Brand>
 
-        {/* Toggle Button for Mobile */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-
-        {/* Navbar Links */}
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             <Nav.Link href="/" className="nav-link-custom">Home</Nav.Link>
             <Nav.Link href="/about" className="nav-link-custom">About</Nav.Link>
 
-            {/* Services Dropdown */}
             <NavDropdown title="Services" id="basic-nav-dropdown" className="nav-dropdown-custom">
               <NavDropdown.Item href="/gift-generator"><FaGift className="me-2" /> Start Drawing Name</NavDropdown.Item>
               <NavDropdown.Item href="/items"><FaList className="me-2" /> My Wishlist</NavDropdown.Item>

@@ -89,7 +89,6 @@ const DrawnName = () => {
   return (
     <div class="page-wrapper">
       <div className="drawn-page-container">
-        {/* Left Side - My Drawn Name */}
         <div className="drawn-name-section">
           <div className="drawn-name-display">
             <h1 className="drawn-name-title">My Drawn Name</h1>
@@ -149,7 +148,6 @@ const DrawnName = () => {
           )}
         </div>
 
-        {/* Right Side - Gift Finder */}
         <div className="gift-finder-section">
           <h1 className="gift-finder-header">Gift Finder</h1>
           

@@ -1,11 +1,4 @@
-/* @import './Content.css';
-@import './GroupGenerator.css';
-@import './Header.css';
-@import './Layout.css';
-@import './ItemList.css';
-@import './GroupIndex.css';
-@import './GroupMessages.css';
-@import './DrawnName.css'; */
+/* @import './Content.css';*/
 @import './Layout.css';
 @import './GroupGenerator.css';
 @import './GroupIndex.css';
@@ -13,8 +6,6 @@
 @import './DrawnName.css';
 @import './ItemList.css';
 
-
-/* Base styles and header separation */
 body {
   background-color: #FFF8F0;
   margin: 0;

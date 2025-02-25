@@ -1,11 +1,9 @@
-/* Base styles */
 .page-wrapper {
   background-color: #f0f2f5 !important;
   min-height: 100vh;
   width: 100%;
 }
 
-/* Page Layout */
 .drawn-page-container {
   max-width: 1200px;
   margin: 80px auto 40px;
@@ -15,7 +13,6 @@
   gap: 24px;
 }
 
-/* Left Side - My Drawn Name Section */
 .drawn-name-section {
   background: white;
   border-radius: 12px;
@@ -43,7 +40,6 @@
   margin: 0;
 }
 
-/* Wishlist Button */
 .wishlist-button {
   width: 100%;
   padding: 14px 16px;
@@ -63,7 +59,6 @@
   opacity: 0.9;
 }
 
-/* No Gifts Section */
 .no-gifts-section {
   padding: 24px;
   text-align: center;
@@ -78,7 +73,6 @@
   display: inline-block;
 }
 
-/* Info Section */
 .info-section {
   padding: 24px;
 }
@@ -103,7 +97,6 @@
   margin-bottom: 24px;
 }
 
-/* Question Input */
 .drawn-question-input {
   width: 100%;
   padding: 12px 16px;
@@ -121,7 +114,6 @@
   box-shadow: 0 0 0 2px rgba(64, 135, 241, 0.2);
 }
 
-/* Send Button */
 .drawn-send-button {
   width: 100%;
   padding: 12px;
@@ -145,7 +137,6 @@
   cursor: not-allowed;
 }
 
-/* Right Side - Gift Finder Section */
 .gift-finder-section {
   background: white;
   border-radius: 12px;
@@ -178,7 +169,6 @@
   box-shadow: 0 0 0 2px rgba(64, 135, 241, 0.2);
 }
 
-/* Gift Finder Popup */
 .gift-finder-content {
   display: flex;
   justify-content: center;
@@ -224,7 +214,6 @@
   background: #3576d8;
 }
 
-/* Status Messages */
 .drawn-error-message {
   color: #dc3545;
   font-size: 14px;
@@ -239,7 +228,6 @@
   text-align: center;
 }
 
-/* Responsive Design */
 @media (max-width: 992px) {
   .drawn-page-container {
     grid-template-columns: 1fr;

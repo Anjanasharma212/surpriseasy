@@ -244,11 +244,8 @@
   }
 }
 
-
-/* wishlists  */
-/* Wishlists Overview Card */
 .wishlists-overview-card {
-  grid-column: span 1; /* Changed to span 1 column instead of full width */
+  grid-column: span 1;
   background: white;
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -271,14 +268,13 @@
   font-size: 14px;
 }
 
-/* Participants List */
 .participants-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
-  max-height: 300px; /* Limit height */
-  overflow-y: auto; /* Add scroll if needed */
+  max-height: 300px;
+  overflow-y: auto; 
 }
 
 .participant-item {
@@ -297,7 +293,7 @@
 
 .participant-info {
   flex: 1;
-  min-width: 0; /* Allows text to truncate */
+  min-width: 0;
 }
 
 .participant-link {
@@ -320,7 +316,6 @@
   white-space: nowrap;
 }
 
-/* Wishlist Preview */
 .wishlist-preview {
   display: flex;
   align-items: center;
@@ -334,7 +329,7 @@
 }
 
 .wishlist-icon {
-  width: 24px; /* Smaller icons */
+  width: 24px; 
   height: 24px;
   border-radius: 50%;
   object-fit: cover;
@@ -367,7 +362,6 @@
   font-size: 13px;
 }
 
-/* Add Children's Wishlist Button */
 .wishlists-overview-card .group-card-btn {
   display: inline-block;
   width: 100%;
@@ -388,7 +382,6 @@
   text-decoration: none;
 }
 
-/* Custom Scrollbar for participants list */
 .participants-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -407,16 +400,15 @@
   background: #999;
 }
 
-/* Responsive Adjustments */
 @media (max-width: 992px) {
   .wishlists-overview-card {
-    grid-column: span 2; /* Span 2 columns on medium screens */
+    grid-column: span 2; 
   }
 }
 
 @media (max-width: 768px) {
   .participant-item {
-    flex-direction: row; /* Keep horizontal layout on mobile */
+    flex-direction: row;
     padding: 8px 10px;
   }
   
@@ -427,7 +419,7 @@
 
 @media (max-width: 576px) {
   .wishlists-overview-card {
-    grid-column: span 1; /* Full width on mobile */
+    grid-column: span 1;
   }
   
   .wishlists-overview-card .group-card-content {
@@ -435,10 +427,6 @@
   }
 }
 
-
-/* group-messages */
-
-/* Messages Card */
 .messages-card {
   width: 100%;
   background: white;
@@ -458,7 +446,6 @@
   margin: 0 0 12px 0;
 }
 
-/* Messages List */
 .messages-list {
   display: flex;
   flex-direction: column;
@@ -509,7 +496,6 @@
   font-size: 13px;
 }
 
-/* Message Input */
 .message-input-container {
   display: flex;
   gap: 8px;
@@ -544,7 +530,6 @@
   background-color: #0b5ed7;
 }
 
-/* Custom Scrollbar */
 .messages-list::-webkit-scrollbar {
   width: 4px;
 }
@@ -563,7 +548,6 @@
   background: #999;
 }
 
-/* Responsive Adjustments */
 @media (max-width: 768px) {
   .messages-card .group-card-content {
     padding: 12px;

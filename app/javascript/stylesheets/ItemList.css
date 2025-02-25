@@ -293,7 +293,6 @@ h3 {
   background: #e0e0e0;
 }
 
-/* Price filter tag style */
 .price-tag {
   display: inline-flex;
   align-items: center;
@@ -315,7 +314,6 @@ h3 {
   color: #2196f3;
 }
 
-/* Update existing responsive styles */
 @media (max-width: 1024px) {
   .main-container {
     margin-top: 60px;

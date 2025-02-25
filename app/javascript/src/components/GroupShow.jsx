@@ -51,7 +51,6 @@ const GroupShow = ()=> {
   return (
     <div className="group-show-container">
       <div className="group-show-grid">
-        {/* Group Info Card */}
         <div className="group-show-card group-info-card">
           <div className="group-card-content">
             <img
@@ -76,7 +75,6 @@ const GroupShow = ()=> {
           </div>
         </div>
   
-        {/* Draw Name Card */}
         <div className="group-show-card draw-name-card">
           <div className="group-card-content">
             <h2 className="group-card-title">My Drawn Name</h2>
@@ -102,7 +100,6 @@ const GroupShow = ()=> {
           </div>
         </div>
   
-        {/* Wish List Card */}
         <div className="group-show-card wishlist-card">
           <div className="group-card-content">
             <h2 className="group-card-title">My Wish List</h2>
@@ -113,7 +110,6 @@ const GroupShow = ()=> {
           </div>
         </div>
   
-        {/* Wish Lists Card */}
         <div className="group-show-card wishlists-overview-card">
           <div className="group-card-content">
             <h2 className="group-card-title">Wish Lists</h2>
@@ -162,10 +158,8 @@ const GroupShow = ()=> {
           </div>
         </div>
   
-        {/* Group Messages Card */}
         <div className="group-show-card wishlists-overview-card">
           <div className="group-card-content">
-            {/* Wishlist content */}
             <GroupMessages groupId={groupId} />
           </div>
         </div>
