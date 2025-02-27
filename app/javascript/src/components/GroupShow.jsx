@@ -16,6 +16,8 @@ const GroupShow = ()=> {
         return res.json();
       })
       .then((data) => {
+        console.log("Group data:", data);
+        console.log("Logged in participant:", data.logged_in_participant);
         setGroup(data);
         setLoading(false);
       })
@@ -104,9 +106,35 @@ const GroupShow = ()=> {
           <div className="group-card-content">
             <h2 className="group-card-title">My Wish List</h2>
             <p className="group-card-text">Tell everyone what gifts you'd like!</p>
-            <a href="/items" className="group-card-btn">
-              Make a Wish List
-            </a>
+            {group?.logged_in_participant ? (
+              (() => {
+                const currentParticipant = group.participants.find(
+                  p => p.participant_id === group.logged_in_participant.id
+                );
+                
+                if (currentParticipant?.wishlist_id && currentParticipant?.wishlist_items_count > 0) {
+                  return (
+                    <a 
+                      href={`/items?wishlist_id=${currentParticipant.wishlist_id}&group_id=${groupId}`} 
+                      className="group-card-btn"
+                    >
+                      Update Wish List
+                    </a>
+                  );
+                } else {
+                  return (
+                    <a 
+                      href={`/items?group_id=${groupId}`} 
+                      className="group-card-btn"
+                    >
+                      Make a Wish List
+                    </a>
+                  );
+                }
+              })()
+            ) : (
+              <span>Loading...</span>
+            )}
           </div>
         </div>
   
@@ -115,44 +143,46 @@ const GroupShow = ()=> {
             <h2 className="group-card-title">Wish Lists</h2>
             <p className="group-card-text">Group Members Who Are Drawing Names</p>
             <div className="participants-list">
-              {group.participants?.length ? (
-                group.participants.map(({ participant_id, email, wishlist_id, wishlist_items_count, wishlist_items }) => (
-                  <div key={participant_id} className="participant-item">
-                    <div className="participant-info">
-                      {wishlist_id ? (
-                        <a href={`/groups/${groupId}/participants/${participant_id}/wishlists/${wishlist_id}`} className="participant-link">
-                          {email}
-                        </a>
-                      ) : (
-                        <span className="participant-email">{email} (No Wishlist)</span>
-                      )}
-                    </div>
-                    <div className="wishlist-preview">
-                      {wishlist_items_count > 0 ? (
-                        <>
-                          <div className="wishlist-icons">
-                            {wishlist_items.slice(0, 3).map((item, index) => (
-                              <img
-                                key={index}
-                                src={item.image_url || 'cap.jpeg'}
-                                alt={item.item_name || 'Wishlist item'}
-                                className="wishlist-icon"
-                              />
-                            ))}
-                          </div>
-                          {wishlist_items_count > 3 && (
-                            <span className="wishlist-count">+{wishlist_items_count - 3}</span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="no-items-text">No wishlist items</span>
-                      )}
-                    </div>
+              {group?.participants?.map((participant) => (
+                <div key={participant.participant_id} className="participant-item">
+                  <div className="participant-info">
+                    {participant.wishlist_id ? (
+                      <a 
+                        href={`/items?wishlist_id=${participant.wishlist_id}&group_id=${groupId}`} 
+                        className="participant-link"
+                      >
+                        {participant.email}
+                        {participant.wishlist_items_count > 0 && (
+                          <span className="wishlist-count">({participant.wishlist_items_count} items)</span>
+                        )}
+                      </a>
+                    ) : (
+                      <span className="participant-email">{participant.email} (No Wishlist)</span>
+                    )}
                   </div>
-                ))
-              ) : (
-                <p className="no-participants-text">No participants in this group.</p>
-              )}
+                  <div className="wishlist-preview">
+                    {participant.wishlist_items_count > 0 ? (
+                      <>
+                        <div className="wishlist-icons">
+                          {participant.wishlist_items.slice(0, 3).map((item, index) => (
+                            <img
+                              key={index}
+                              src={item.image_url || 'default-item.png'}
+                              alt={item.item_name || 'Wishlist item'}
+                              className="wishlist-icon"
+                            />
+                          ))}
+                        </div>
+                        {participant.wishlist_items_count > 3 && (
+                          <span className="wishlist-count">+{participant.wishlist_items_count - 3}</span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="no-items-text">No wishlist items</span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
             <a href="#" className="group-card-btn">Add a children's wishlist</a>
           </div>

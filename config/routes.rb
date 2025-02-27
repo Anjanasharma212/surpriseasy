@@ -21,7 +21,7 @@ Rails.application.routes.draw do
       get :filters
     end 
   end 
-  resources :wishlists, only: [:show, :create]
+  resources :wishlists, only: [:show, :create, :update]
 
   get '/gift-generator', to: 'groups#gift_generator'
   
