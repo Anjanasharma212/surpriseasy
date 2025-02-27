@@ -21,7 +21,7 @@ const mountReactComponent = (id, Component) => {
 
 document.addEventListener("DOMContentLoaded", () => {
   mountReactComponent("react-root", HelloReact); 
-  mountReactComponent("gift-generator-root", GroupGenerator);
+  mountReactComponent("group_generator-root", GroupGenerator);
   mountReactComponent("my-group-root", GroupIndex);
   mountReactComponent("items-list", ItemList);
   mountReactComponent("participants-details", GroupShow);

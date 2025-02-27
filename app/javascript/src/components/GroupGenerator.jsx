@@ -92,7 +92,7 @@ const GroupGenerator = () => {
         <div className="generator-content">
           <div className="generator-header">
             <h1>Group Generator</h1>
-            <p>Organize your Secret Santa using Email or Text Message.</p>
+            <p>Organize your Secret Gifts using Email or Text Message.</p>
             <div className="generator-card-image">
               <img src={giftCard} alt="Name" />
             </div>

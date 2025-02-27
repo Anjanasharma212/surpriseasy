@@ -38,10 +38,10 @@ const Header = () => {
             <Nav.Link href="/about" className="nav-link-custom">About</Nav.Link>
 
             <NavDropdown title="Services" id="basic-nav-dropdown" className="nav-dropdown-custom">
-              <NavDropdown.Item href="/gift-generator"><FaGift className="me-2" /> Start Drawing Name</NavDropdown.Item>
+              <NavDropdown.Item href="/group_generator"><FaGift className="me-2" /> Start Drawing Name</NavDropdown.Item>
               <NavDropdown.Item href="/items"><FaList className="me-2" /> My Wishlist</NavDropdown.Item>
               <NavDropdown.Item href="/groups"><FaGift className="me-2" /> My Group Page</NavDropdown.Item>
-              <NavDropdown.Item href="/services/drawn-name"><FaGift className="me-2" /> My Drawn Name</NavDropdown.Item>
+              <NavDropdown.Item href="/participants/:id/my_drawn_name"><FaGift className="me-2" /> My Drawn Name</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item href="/users/sign_in"><FaSignInAlt className="me-2" /> Sign In</NavDropdown.Item>
               <NavDropdown.Item as="button" onClick={handleLogout}><FaSignOutAlt className="me-2 text-danger" /> Sign Out</NavDropdown.Item>

@@ -99,7 +99,7 @@ const GroupIndex = () => {
               <p className="text-gray-600 text-center">No celebrations found.</p>
             )}
           </div>
-          <a href="/gift-generator" className="group-create-button">
+          <a href="/group_generator" className="group-create-button">
             Create a new group →
           </a>
         </div>

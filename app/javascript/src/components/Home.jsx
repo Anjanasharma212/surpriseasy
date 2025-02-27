@@ -20,11 +20,11 @@ const Home = () => {
             </a> Generator online for Christmas and other festivities!
           </p>
           <ul className="list-unstyled">
-            <li>🎁 <a href="/secret-santa-generator" className="text-dark fw-bold">Secret Santa Generator</a> with wish lists</li>
+            <li>🎁 <a href="/secret-santa-generator" className="text-dark fw-bold">Group Generator</a> with wish lists</li>
             <li>🔍 Search personal gift ideas in our <a href="/gift-finder" className="text-dark fw-bold">Gift Finder</a></li>
             <li>❓ Ask your Secret Santa anonymous questions</li>
           </ul>
-          <Button href="/gift-generator" variant="danger" className="mt-3 px-4 py-2">
+          <Button href="/group_generator" variant="danger" className="mt-3 px-4 py-2">
             🎅 Start Drawing Names
           </Button>
         </Col>

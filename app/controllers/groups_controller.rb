@@ -2,7 +2,7 @@ class GroupsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_group, only: [:destroy]
 
-  def gift_generator;end
+  def group_generator;end
 
   def index
     @groups = Group.where(id: Participant.where(user_id: current_user.id).pluck(:group_id))

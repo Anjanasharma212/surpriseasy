@@ -23,7 +23,7 @@ Rails.application.routes.draw do
   end 
   resources :wishlists, only: [:show, :create, :update]
 
-  get '/gift-generator', to: 'groups#gift_generator'
+  get '/group_generator', to: 'groups#group_generator'
   
   resources :participants do
     member do
