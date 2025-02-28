@@ -5,13 +5,18 @@ class Message < ApplicationRecord
   has_many :notifications, as: :notifiable
 
   validates :content, presence: true
+  validates :sender, presence: true
+  validates :group, presence: true
+
+  scope :not_anonymous, -> { where(is_anonymous: false) }
+  scope :anonymous, -> { where(is_anonymous: true) }
+  scope :by_date_asc, -> { order(created_at: :asc) }
+
   before_validation :set_is_anonymous
 
   private
 
   def set_is_anonymous
-    if self.receiver_id.present? && is_anonymous.nil?
-      self.is_anonymous = true  
-    end
+    self.is_anonymous = receiver_id.present? if is_anonymous.nil?
   end
 end

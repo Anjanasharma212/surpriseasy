@@ -1,31 +1,23 @@
 class GroupsController < ApplicationController
-  before_action :authenticate_user!
-  before_action :set_group, only: [:destroy]
+  before_action :set_group, only: [:show, :destroy]
+  before_action :authorize_group_access, only: [:show]
+  rescue_from ActiveRecord::RecordNotFound, with: :handle_record_not_found
 
   def group_generator;end
 
   def index
-    @groups = Group.where(id: Participant.where(user_id: current_user.id).pluck(:group_id))
-  
+    @groups = current_user.participant_groups
+    
     respond_to do |format|
       format.html
-      format.json {
-        render json: @groups.to_json(
-          include: {participants: {include: { user: { only: [:id, :name, :email] } }}}
-        )
-      }
+      format.json { render_groups_list }
     end
   end
-  
-  def show
-    @group = Group.includes(participants: { user: {}, wishlists: { wishlist_items: :item } }).find(params[:id])
-    unless @group.participants.exists?(user_id: current_user.id)
-      return render json: { error: "You are not authorized to view this group" }, status: :forbidden
-    end
 
+  def show
     respond_to do |format|
       format.html
-      format.json { render json: group_json(@group, current_user) }
+      format.json { render_group_details }
     end
   end
 
@@ -33,55 +25,56 @@ class GroupsController < ApplicationController
     @group = Group.new(group_params)
 
     if @group.save
-      GroupEmailJob.perform_later(@group.id)
-      render json: { success: "Group created successfully!"}, status: :created
+      begin
+        GroupEmailJob.perform_later(@group.id)
+        render json: { success: t('groups.success.created') }, status: :created
+      rescue StandardError => e
+        render json: { 
+          success: t('groups.success.created'),
+          warning: t('groups.warnings.email_delayed')
+        }, status: :created
+      end
     else
       render json: { errors: @group.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    if @group.destroy!
-      render json: { message: "Group deleted successfully" }, status: :ok
+    result = GroupService.new(@group).remove
+    
+    if result[:success]
+      render json: { message: result[:message] }, status: :ok
     else
-      render json: { error: "Failed to delete group" }, status: :unprocessable_entity
+      render json: { error: result[:error] }, status: :unprocessable_entity
     end
   end
 
-  private 
+  private
 
-  def group_json(group, current_user)
-    participant = group.participants.find_by(user_id: current_user.id)
+  def render_groups_list
+    if @groups.exists?
+      render json: @groups.map { |group| GroupSerializer.new(group, current_user).format_group_details }
+    else
+      render_not_found(t('groups.errors.no_groups'))
+    end
+  end
 
-    {
-      id: group.id,
-      name: group.group_name,
-      event_date: group.event_date,
-      budget: group.budget,
-      logged_in_participant: participant ? {
-        id: participant.id,
-        name: participant.user.name,
-        email: participant.user.email,
-        drawn_name_id: participant.drawn_name_id
-      } : nil,
-      participants: group.participants.map do |participant|
-        wishlist = participant.wishlists.first 
+  def render_group_details
+    render json: GroupSerializer.new(@group, current_user).format_group_details
+  end
 
-        {
-          participant_id: participant.id,
-          email: participant.user.email,
-          wishlist_id: wishlist ? wishlist.id : nil,
-          wishlist_items_count: wishlist ? wishlist.wishlist_items.count : 0,
-          wishlist_items: wishlist ? wishlist.wishlist_items.map do |wishlist_item|
-            {
-              id: wishlist_item.item.id,
-              item_name: wishlist_item.item.item_name,
-              image_url: wishlist_item.item.image_url
-            }
-          end : []
-        }
-      end
-    }
+  def render_not_found(message)
+    render json: { error: message }, status: :not_found
+  end
+  
+  def set_group
+    @group = Group.includes(group_includes).find(params[:id])
+  end
+
+  def authorize_group_access
+    unless @group&.participants&.exists?(user_id: current_user.id)
+      render json: { error: t('groups.errors.unauthorized') }, status: :forbidden
+    end
   end
   
   def group_params
@@ -93,9 +86,20 @@ class GroupsController < ApplicationController
       user_attributes: [:email, :name], 
       participants_attributes: [user_attributes: [:email, :name]]
     )
-  end 
+  end
 
-  def set_group
-    @group = Group.find(params[:id])
+  def group_includes
+    {
+      participants: {
+        user: {},
+        wishlists: {
+          wishlist_items: :item
+        }
+      }
+    }
+  end
+
+  def handle_record_not_found
+    render json: { error: t('groups.errors.not_found') }, status: :not_found
   end
 end

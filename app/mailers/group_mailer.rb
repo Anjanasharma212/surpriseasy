@@ -5,7 +5,21 @@ class GroupMailer < ApplicationMailer
     @user = user
     @group = group
     
-    @invitation_link = @user.invite!
-    mail(to: @user.email, subject: 'Your Group Has Been Created!')
+    @invitation_link = generate_invitation_link if new_user?
+
+    mail(
+      to: @user.email,
+      subject: t('groups.emails.created.subject')
+    )
+  end
+
+  private
+
+  def new_user?
+    @user.created_at == @user.updated_at
+  end
+
+  def generate_invitation_link
+    @user.invite! rescue nil
   end
 end

@@ -7,67 +7,77 @@ const ItemList = () => {
   const params = new URLSearchParams(window.location.search);
   const groupId = params.get('group_id');
   const wishlistIdParam = params.get('wishlist_id');
+  
   const [items, setItems] = useState([]);
   const [wishlist, setWishList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [wishlistId, setWishlistId] = useState(wishlistIdParam);
   const [participantId, setParticipantId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
-  
+        setError(null);
+
+        // Fetch all available items
         const itemsResponse = await fetch("/items.json");
+        if (!itemsResponse.ok) throw new Error("Failed to fetch items");
         const itemsData = await itemsResponse.json();
         setItems(itemsData);
-  
+
+        // If we have a group ID, fetch group data
         if (groupId) {
           const groupResponse = await fetch(`/groups/${groupId}.json`);
+          if (!groupResponse.ok) throw new Error("Failed to fetch group");
           const groupData = await groupResponse.json();
-  
+
           if (groupData.logged_in_participant) {
             setParticipantId(groupData.logged_in_participant.id);
-  
-            const wishlistIdToFetch = wishlistId || groupData.logged_in_participant.wishlist_id;
-  
+
+            // Determine which wishlist ID to use
+            const wishlistIdToFetch = wishlistIdParam || groupData.logged_in_participant.wishlist_id;
+
             if (wishlistIdToFetch) {
-              console.log("🔍 Fetching Wishlist with ID:", wishlistIdToFetch);
               const wishlistResponse = await fetch(`/wishlists/${wishlistIdToFetch}.json`);
+              if (!wishlistResponse.ok) throw new Error("Failed to fetch wishlist");
               const wishlistData = await wishlistResponse.json();
-  
-              console.log("🔍 Wishlist Data from API:", wishlistData);
-  
-              if (wishlistData.items) {
-                setWishList(
-                  wishlistData.items.map(item => ({
-                    ...item,
-                    wishlist_item_id: item.wishlist_item_id || item.id
-                  }))
-                );
-                setWishlistId(wishlistData.id);
-              }
+
+              // Handle the wishlist data structure
+              const wishlistItems = wishlistData.wishlist?.items || [];
+              setWishList(wishlistItems.map(item => ({
+                ...item,
+                wishlist_item_id: item.wishlist_item_id || item.id
+              })));
+              setWishlistId(wishlistData.wishlist?.id);
             }
           }
         }
       } catch (error) {
-        console.error("❌ Error loading data:", error);
+        console.error("Error loading data:", error);
+        setError(error.message);
       } finally {
         setIsLoading(false);
       }
     };
-  
+
     loadData();
-  }, [groupId, wishlistId]); 
-  
+  }, [groupId, wishlistIdParam]);
+
   const handleRemove = async (item) => {
-    const updatedWishlist = wishlist.filter((wishItem) => wishItem.id !== item.id);
-    setWishList(updatedWishlist);
-  
+    if (!wishlistId) {
+      console.error("No wishlist ID available");
+      return;
+    }
+
     try {
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
-  
+      const updatedWishlist = wishlist.filter((wishItem) => wishItem.id !== item.id);
+
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+      if (!csrfToken) throw new Error("CSRF token not found");
+
       const response = await fetch(`/wishlists/${wishlistId}`, {
         method: "PATCH",
         headers: {
@@ -75,97 +85,101 @@ const ItemList = () => {
           "X-CSRF-Token": csrfToken,
         },
         body: JSON.stringify({
-          wishlist: { 
-            item_ids: updatedWishlist.map(item => item.id),
-            participant_id: participantId,
-            group_id: groupId
+          wishlist: {
+            wishlist_items_attributes: [{
+              id: item.wishlist_item_id,
+              _destroy: true
+            }]
           }
         }),
       });
-  
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to remove item");
       }
-  
+
       const data = await response.json();
-  
-      if (data.error) {
-        alert(data.error);
-      } else {
-        setWishList(data.wishlist.items || []);
-        alert("Wishlist updated successfully!");
-      }
+      console.log('Remove response:', data); // Debug log
+
+      // Update local state
+      setWishList(updatedWishlist);
     } catch (error) {
-      console.error("Error updating wishlist:", error);
-      alert("Failed to update wishlist. Please try again.");
+      console.error("Error removing item:", error);
+      alert(error.message || "Failed to remove item");
     }
   };
-  
-  
+
   const toggleWishlist = (item) => {
-    console.log('Toggle wishlist for item:', item);
-    
     setWishList(currentWishlist => {
       const isItemInWishlist = currentWishlist.some(wishItem => wishItem.id === item.id);
-      let updatedWishlist;
-      
-      if (isItemInWishlist) {
-        updatedWishlist = currentWishlist.filter(wishItem => wishItem.id !== item.id);
-      } else {
-        updatedWishlist = [...currentWishlist, item];
-      }
-      return updatedWishlist;
-    });
-
-    setItems(currentItems => {
-      return currentItems.map(listItem => ({
-        ...listItem,
-        isInWishlist: listItem.id === item.id ? !listItem.isInWishlist : listItem.isInWishlist
-      }));
+      return isItemInWishlist
+        ? currentWishlist.filter(wishItem => wishItem.id !== item.id)
+        : [...currentWishlist, { ...item, wishlist_item_id: undefined }];
     });
   };
 
   const saveWishlist = async () => {
     try {
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+      if (!csrfToken) throw new Error("CSRF token not found");
+
+      // Check if we have items to save
+      if (!wishlist || wishlist.length === 0) {
+        throw new Error("Please add items to your wishlist before saving");
+      }
+
       const url = wishlistId ? `/wishlists/${wishlistId}` : "/wishlists";
       const method = wishlistId ? "PATCH" : "POST";
-  
-      const wishlistItems = wishlist.map(item => ({
-        id: item.wishlist_item_id || undefined,
-        item_id: item.id
-      })).filter(item => item.item_id);
-  
+
+      const wishlistData = {
+        wishlist: {
+          participant_id: participantId,
+          group_id: groupId,
+          wishlist_items_attributes: wishlist.map(item => ({
+            id: item.wishlist_item_id,
+            item_id: item.id
+          }))
+        }
+      };
+
+      console.log('Sending wishlist data:', wishlistData); // Debug log
+
       const response = await fetch(url, {
-        method: method,
+        method,
         headers: {
           "Content-Type": "application/json",
           "X-CSRF-Token": csrfToken
         },
-        body: JSON.stringify({
-          wishlist: {
-            wishlist_items_attributes: wishlistItems
-          }
-        }),
+        body: JSON.stringify(wishlistData),
       });
-  
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  
-      const data = await response.json();
-      if (data.error) {
-        alert(data.error);
-      } else {
-        if (!wishlistId) setWishlistId(data.wishlist.id);
 
-        const updatedWishlistResponse = await fetch(`/wishlists/${data.wishlist.id}.json`);
-        const updatedWishlist = await updatedWishlistResponse.json();
-        
-        setWishList(updatedWishlist.items);
-        alert(data.message);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save wishlist");
       }
+
+      const data = await response.json();
+      console.log('Received response:', data); // Debug log
+
+      if (!data || !data.wishlist) {
+        throw new Error("Invalid response format from server");
+      }
+
+      // Update the wishlist state with the new data
+      setWishlistId(data.wishlist.id);
+      
+      // Handle the case where items might be empty
+      const newItems = data.wishlist.items || [];
+      setWishList(newItems.map(item => ({
+        ...item,
+        wishlist_item_id: item.wishlist_item_id || item.id
+      })));
+
+      alert("Wishlist saved successfully!");
     } catch (error) {
       console.error("Error saving wishlist:", error);
-      alert("Failed to save wishlist. Please try again.");
+      alert(error.message || "Failed to save wishlist");
     }
   };
 
@@ -188,6 +202,8 @@ const ItemList = () => {
     <div className="main-container">
       {isLoading ? (
         <div>Loading...</div>
+      ) : error ? (
+        <div className="error-message">{error}</div>
       ) : (
         <>
           <div className="item-card">
@@ -241,16 +257,19 @@ const ItemList = () => {
             </div>
           </div>
 
-          {/* Wishlist Section */}
+          {/* Wishlist Section - Always visible */}
           <div className="wishlist-card">
-            <h3>{wishlistId ? 'Update My Wishlist' : 'Create My Wishlist'}</h3>
+            <h3>{wishlistId ? 'My Wishlist' : 'Create My Wishlist'}</h3>
             {wishlist.length > 0 ? (
               <>
                 <div className="wishlist-items">
                   {wishlist.map((item) => (
                     <div key={item.id} className="wishlist-item">
                       <img src={item.image_url} alt={item.item_name} className="wishlist-image" />
-                      <p className="item-name">{item.item_name}</p>
+                      <div className="wishlist-item-details">
+                        <p className="item-name">{item.item_name}</p>
+                        <p className="item-price">${item.price}</p>
+                      </div>
                       <button 
                         className="remove-btn" 
                         onClick={() => handleRemove(item)}
@@ -260,9 +279,19 @@ const ItemList = () => {
                     </div>
                   ))}
                 </div>
-                <button className="save-btn" onClick={saveWishlist}>
-                  {wishlistId ? 'Update Wishlist' : 'Save Wishlist'}
-                </button>
+                <div className="wishlist-actions">
+                  <button className="save-btn" onClick={saveWishlist}>
+                    {wishlistId ? 'Update Wishlist' : 'Save Wishlist'}
+                  </button>
+                  {wishlistId && (
+                    <a 
+                      href={`/groups/${groupId}`} 
+                      className="back-btn"
+                    >
+                      Back to Group
+                    </a>
+                  )}
+                </div>
               </>
             ) : (
               <div className="wishlist-placeholder">

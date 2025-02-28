@@ -28,4 +28,27 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  groups:
+    errors:
+      unauthorized: "You are not authorized to view this group"
+      delete_failed: "Failed to delete group"
+      not_found: "Group not found"
+      no_groups: "No groups found"
+      not_participant: "You are not a participant in this group"
+      invalid_format: "Invalid request format"
+      parameter_missing: "Required parameters missing"
+    messages:
+      errors:
+        invalid: "Invalid message data"
+        not_found: "Message not found"
+        receiver_not_participant: "Receiver must be a participant of the group"
+    success:
+      message_sent: "Message sent successfully!"
+      created: "Group created successfully!"
+      deleted: "Group deleted successfully"
+    warnings:
+      email_delayed: "Group created but notification emails may be delayed"
+    emails:
+      created:
+        subject: "Your Group Has Been Created!"
+

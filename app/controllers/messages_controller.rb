@@ -3,40 +3,43 @@ class MessagesController < ApplicationController
   before_action :set_group
   before_action :check_participant, only: [:index, :create]
 
+  rescue_from ActiveRecord::RecordInvalid, with: :handle_invalid_record
+  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
+
   def index
-    @messages = @group.messages.includes(:sender).where(is_anonymous: false).order(created_at: :asc)
-    render json: @messages.map{|msg| format_message(msg)}
+    @messages = @group.messages
+      .includes(:sender)
+      .not_anonymous
+      .by_date_asc
+    
+    render json: @messages.map { |msg| format_message(msg) }
   end
 
   def create
-    @message = @group.messages.new(message_params.merge(sender: current_user))
-
-    if @message.save
-      MessageJob.perform_later(@message.id) if @message.is_anonymous?
-      render json: { success: "Message sent successfully!", message: format_message(@message) }, status: :created
-    else
-      render json: { errors: @message.errors.full_messages }, status: :unprocessable_entity
-    end
+    @message = @group.messages.build(message_params)
+    @message.sender = current_user
+    
+    @message.save!  # Will raise RecordInvalid if invalid
+    MessageJob.perform_later(@message.id) if @message.is_anonymous?
+    
+    render json: @message, 
+           status: :created, 
+           success_message: I18n.t('groups.success.message_sent')
   end
 
   private
 
   def set_group
-    @group = Group.find_by(id: params[:group_id])
-    render json: { error: "Group not found" }, status: :not_found unless @group
+    @group = Group.find(params[:group_id])
   end
 
   def check_participant
-    return if @group.users.include?(current_user)
-
-    render json: { error: "You are not a participant in this group" }, status: :forbidden
+    unless @group.participants.exists?(user_id: current_user.id)
+      render json: { error: I18n.t('groups.errors.not_participant') }, status: :forbidden
+    end
   end
 
   def message_params
-    if params[:message].is_a?(String)
-      Rails.logger.error "Expected params[:message] to be a Hash, but got String: #{params[:message].inspect}"
-      raise ActionController::BadRequest, "Invalid parameters format"
-    end
     params.require(:message).permit(:content, :receiver_id, :is_anonymous)
   end
 
@@ -48,5 +51,14 @@ class MessagesController < ApplicationController
       receiver_id: msg.receiver_id,
       sent_at: msg.created_at
     }
+  end
+
+  def handle_invalid_record(exception)
+    render json: { error: exception.record.errors.full_messages }, 
+           status: :unprocessable_entity
+  end
+
+  def handle_not_found
+    render json: { error: I18n.t('groups.errors.not_found') }, status: :not_found
   end
 end

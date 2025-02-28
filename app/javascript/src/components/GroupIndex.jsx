@@ -5,8 +5,11 @@ import indexImage from "../../images/g-index.svg";
 
 const GroupIndex = () => {
   const [groups, setGroups] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetch("/groups.json", {
       headers: {
         "Accept": "application/json",
@@ -14,11 +17,29 @@ const GroupIndex = () => {
       },
       credentials: "include",
     })
-      .then((res) => res.json())
-      .then((data) => {
-        setGroups(Array.isArray(data) ? data : []);
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Failed to fetch groups');
+        }
+        return res.json();
       })
-      .catch((error) => console.error("Error fetching groups:", error));
+      .then((data) => {
+        if (data.message) {
+          setGroups([]);
+        } else {
+          setGroups(Array.isArray(data) ? data : []);
+        }
+        setError(null);
+      })
+      .catch((error) => {
+        console.error("Error fetching groups:", error);
+        setError(error.message);
+        setGroups([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const handleDelete = async (groupId) => {
@@ -54,14 +75,14 @@ const GroupIndex = () => {
         <div className="group-index-container">
           <h1 className="group-index-title">My Celebrations</h1>
           <div className="space-y-4">
-            {Array.isArray(groups) && groups.length > 0 ? (
+            {loading ? (
+              <p className="text-center">Loading...</p>
+            ) : error ? (
+              <p className="text-red-600 text-center">{error}</p>
+            ) : groups.length > 0 ? (
               groups.map((group) => (
                 <div key={group.id} className="group-card">
                   <div>
-                    {/* <h2 className="text-blue-600 text-lg font-semibold">
-                      {group.group_name}
-                    </h2> */}
-
                     <h5>
                       <a href={`/groups/${group.id}`} className="group-card-name">
                         {group.group_name}

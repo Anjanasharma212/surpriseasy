@@ -16,4 +16,8 @@ class User < ApplicationRecord
   def password_required?
     new_record? ? false : super
   end
+
+  def participant_groups
+    Group.where(id: Participant.where(user_id: id).pluck(:group_id))
+  end
 end
