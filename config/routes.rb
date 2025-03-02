@@ -21,16 +21,11 @@ Rails.application.routes.draw do
       get :filters
     end 
   end 
-  resources :wishlists, only: [:show, :create, :update]
+  resources :wishlists, only: [:show, :create, :update, :destroy]
 
   get '/group_generator', to: 'groups#group_generator'
   
-  resources :participants do
-    member do
-      get 'my_drawn_name'
-      post 'my_drawn_name'
-    end
-  end
+  resources :participants, only: [:show, :update]
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest

@@ -60,16 +60,22 @@ const GroupShow = () => {
     setIsDrawing(true);
     setError(null);
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    fetch(`/participants/${participantId}/my_drawn_name.json`, {
+    
+    // Updated to use RESTful update endpoint
+    fetch(`/participants/${participantId}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", 'X-CSRF-Token': csrfToken },
+      headers: { 
+        "Content-Type": "application/json", 
+        "Accept": "application/json",
+        'X-CSRF-Token': csrfToken 
+      },
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.drawn_name_id) {
-          window.location.href = `/participants/${data.drawn_name_id}/my_drawn_name`;
+        if (data.drawn_name?.id) {
+          window.location.href = `/participants/${participantId}`;
         } else {
-          setError("No available participants left.");
+          setError(data.error || "No available participants left.");
         }
       })
       .catch(() => setError("Failed to fetch drawn name"))
@@ -173,7 +179,7 @@ const GroupShow = () => {
             <h2 className="group-card-title">My Drawn Name</h2>
             {group?.logged_in_participant?.drawn_name_id ? (
               <a
-                href={`/participants/${group.logged_in_participant.drawn_name_id}/my_drawn_name`}
+                href={`/participants/${group.logged_in_participant.id}`}
                 className="group-card-btn"
               >
                 My Drawn Name

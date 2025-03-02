@@ -51,4 +51,24 @@ en:
     emails:
       created:
         subject: "Your Group Has Been Created!"
+  participants:
+    errors:
+      not_found: "Participant not found"
+      no_drawn_name: "No drawn name assigned yet"
+      already_drawn: "You have already drawn a name"
+      no_available_participants: "No available participants left"
+    success:
+      name_drawn: "Drawn name assigned!"
+  errors:
+    record_not_found: "Record not found"
+    unauthorized: "Unauthorized access"
+  
+  wishlists:
+    errors:
+      not_found: "Wishlist not found"
+      creation_failed: "Failed to create wishlist"
+      update_failed: "Failed to update wishlist"
+      unauthorized: "You are not authorized to access this wishlist"
+      invalid_items: "Invalid item IDs: %{items}"
+      item_not_found: "Item does not exist"
 

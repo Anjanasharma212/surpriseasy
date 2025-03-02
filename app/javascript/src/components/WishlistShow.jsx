@@ -16,28 +16,28 @@ const WishlistShow = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!wishlist_id) return;
+    if (!wishlist_id || !participant_id) return;
 
-    fetch(`/groups/${group_id}/participants/${participant_id}/wishlists/${wishlist_id}.json`)
+    fetch(`/participants/${participant_id}/wishlists/${wishlist_id}.json`)
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Failed to fetch wishlist.");
+          throw new Error(res.status === 422 ? "Unauthorized access" : "Failed to fetch wishlist");
         }
         return res.json();
       })
       .then((data) => {
-        setWishlist(data);
+        setWishlist(data.wishlist);
         setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
         setLoading(false);
       });
-  }, [group_id, participant_id, wishlist_id]);
+  }, [participant_id, wishlist_id]);
 
   if (loading) return <div className="text-center py-5">Loading wishlist...</div>;
   if (error) return <div className="text-center text-danger py-5">Error: {error}</div>;
-  if (!wishlist || wishlist.items.length === 0)
+  if (!wishlist || !wishlist.items || wishlist.items.length === 0)
     return <div className="text-center py-5">No items found in this wishlist.</div>;
 
   return (
@@ -48,13 +48,14 @@ const WishlistShow = () => {
             <div className="card shadow-sm p-3 h-100">
               <img
                 src={item.image_url || "https://via.placeholder.com/200"}
-                alt={item.name}
+                alt={item.item_name}
                 className="img-fluid rounded"
                 style={{ height: "200px", objectFit: "cover" }}
               />
               <div className="card-body d-flex flex-column">
-                <h5 className="card-title">{item.name}</h5>
+                <h5 className="card-title">{item.item_name}</h5>
                 <p className="text-muted">{item.description}</p>
+                <p className="text-primary">${item.price}</p>
                 <button className="btn btn-primary mt-auto">View Details</button>
               </div>
             </div>

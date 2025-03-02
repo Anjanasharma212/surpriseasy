@@ -7,14 +7,26 @@ class ParticipantSerializer
     return nil unless @participant
 
     {
-      id: @participant.id,
-      drawn_name_id: @participant.drawn_name_id,
+      participant_id: @participant.id,
+      group_id: @participant.group_id,
+      drawn_name: format_drawn_name(@participant.drawn_name),
       user: format_user(@participant.user),
-      wishlist: format_wishlist(@participant.wishlists.first)
+      wishlists: format_wishlists(@participant.wishlists)
     }
   end
 
   private
+
+  def format_drawn_name(drawn_participant)
+    return nil unless drawn_participant
+
+    {
+      id: drawn_participant.user.id,
+      name: drawn_participant.user.name,
+      email: drawn_participant.user.email,
+      wishlists: format_wishlists(drawn_participant.wishlists)
+    }
+  end
 
   def format_user(user)
     {
@@ -24,13 +36,24 @@ class ParticipantSerializer
     }
   end
 
+  def format_wishlists(wishlists)
+    wishlists.map do |wishlist|
+      format_wishlist(wishlist)
+    end
+  end
+
   def format_wishlist(wishlist)
     return nil unless wishlist
 
     {
       id: wishlist.id,
-      wishlist_items: wishlist.wishlist_items.map { |item| format_wishlist_item(item) }
+      wishlist_items: format_wishlist_items(wishlist.wishlist_items),
+      wishlist_items_count: wishlist.wishlist_items.count
     }
+  end
+
+  def format_wishlist_items(items)
+    items.map { |item| format_wishlist_item(item) }
   end
 
   def format_wishlist_item(wishlist_item)

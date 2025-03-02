@@ -20,23 +20,35 @@ const DrawnName = () => {
 
     const fetchDrawnName = async () => {
       try {
-        const response = await fetch(`/participants/${participantId}/my_drawn_name.json`, { method: "GET" })
-        if (!response.ok) throw new Error("Failed to fetch drawn name");
+        const response = await fetch(`/participants/${participantId}.json`, { 
+          method: "GET",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch drawn name");
+        }
 
         const data = await response.json();
-
-        if (data.error) {
-          setError(data.error);
-        } else {
-          setDrawnName(
-            data.drawn_name
-              ? { id: data.drawn_name.id, name: data.drawn_name.name || `User ${data.drawn_name.id}` }
-              : null
-          );
+        if (data.drawn_name) {
+          setDrawnName({
+            id: data.drawn_name.id,
+            name: data.drawn_name.name,
+            email: data.drawn_name.email,
+            wishlistId: data.drawn_name.wishlist_id,
+            wishlistItemsCount: data.drawn_name.wishlist_items_count
+          });
           setGroupId(data.group_id);
+          setError(null);
+        } else {
+          setError("No drawn name assigned yet.");
         }
-      } catch {
-        setError("Failed to fetch drawn name.");
+      } catch (err) {
+        setError(err.message || "Failed to fetch drawn name.");
       }
     };
 
@@ -66,6 +78,7 @@ const DrawnName = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
           "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.getAttribute("content"),
         },
         body: JSON.stringify(requestData),
@@ -77,9 +90,9 @@ const DrawnName = () => {
         setSuccess("Message sent anonymously!");
         setMessage("");
       } else {
-        setError(responseData.errors?.join(", ") || "Failed to send message.");
+        setError(responseData.error || "Failed to send message.");
       }
-    } catch {
+    } catch (err) {
       setError("An error occurred while sending the message.");
     } finally {
       setLoading(false);
@@ -87,7 +100,7 @@ const DrawnName = () => {
   };
 
   return (
-    <div class="page-wrapper">
+    <div className="page-wrapper">
       <div className="drawn-page-container">
         <div className="drawn-name-section">
           <div className="drawn-name-display">
@@ -101,15 +114,26 @@ const DrawnName = () => {
             <>
               <button className="wishlist-button">
                 Wish list for {drawnName.name}
-                <span className="wishlist-count">0 gifts</span>
+                <span className="wishlist-count">
+                  {drawnName.wishlistItemsCount} gifts
+                </span>
               </button>
 
-              <div className="no-gifts-section">
-                <p>No gifts requested yet</p>
-                <a href="#" className="ask-anonymous-link">
-                  Ask {drawnName.name} anonymously to enter a wish list
+              {drawnName.wishlistItemsCount === 0 ? (
+                <div className="no-gifts-section">
+                  <p>No gifts requested yet</p>
+                  <a href="#" className="ask-anonymous-link">
+                    Ask {drawnName.name} anonymously to enter a wish list
+                  </a>
+                </div>
+              ) : (
+                <a 
+                  href={`/items?wishlist_id=${drawnName.wishlistId}`} 
+                  className="view-wishlist-link"
+                >
+                  View Wishlist
                 </a>
-              </div>
+              )}
 
               <div className="info-section">
                 <div className="info-header">
@@ -173,7 +197,6 @@ const DrawnName = () => {
         </div>
       </div>
     </div>
-   
   );
 };
 
