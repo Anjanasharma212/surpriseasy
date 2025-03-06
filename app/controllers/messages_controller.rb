@@ -1,5 +1,4 @@
 class MessagesController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_group
   before_action :check_participant, only: [:index, :create]
 
@@ -10,21 +9,26 @@ class MessagesController < ApplicationController
     @messages = @group.messages
       .includes(:sender)
       .not_anonymous
-      .by_date_asc
-    
+
     render json: @messages.map { |msg| format_message(msg) }
   end
 
   def create
-    @message = @group.messages.build(message_params)
-    @message.sender = current_user
-    
-    @message.save!  # Will raise RecordInvalid if invalid
-    MessageJob.perform_later(@message.id) if @message.is_anonymous?
-    
-    render json: @message, 
-           status: :created, 
-           success_message: I18n.t('groups.success.message_sent')
+    @message = @group.messages.new(message_params.merge(sender: current_user))
+    @message.save!
+
+    if @message.is_anonymous?
+      begin
+        MessageJob.perform_later(@message.id)
+      rescue StandardError
+        return render json: {
+          message: @message,
+          warning: t('groups.messages.warnings.notification_delayed')
+        }, status: :created
+      end
+    end
+
+    render json: @message, status: :created
   end
 
   private

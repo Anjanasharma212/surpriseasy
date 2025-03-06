@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import FilterBar from "./FilterBar";
 import { FaSearch } from "react-icons/fa";
 import { useParams } from 'react-router-dom';
+import { debounce } from 'lodash';
 
 const ItemList = () => {
   const params = new URLSearchParams(window.location.search);
@@ -22,13 +23,11 @@ const ItemList = () => {
         setIsLoading(true);
         setError(null);
 
-        // Fetch all available items
         const itemsResponse = await fetch("/items.json");
         if (!itemsResponse.ok) throw new Error("Failed to fetch items");
         const itemsData = await itemsResponse.json();
         setItems(itemsData);
 
-        // If we have a group ID, fetch group data
         if (groupId) {
           const groupResponse = await fetch(`/groups/${groupId}.json`);
           if (!groupResponse.ok) throw new Error("Failed to fetch group");
@@ -36,8 +35,6 @@ const ItemList = () => {
 
           if (groupData.logged_in_participant) {
             setParticipantId(groupData.logged_in_participant.id);
-
-            // Determine which wishlist ID to use
             const wishlistIdToFetch = wishlistIdParam || groupData.logged_in_participant.wishlist_id;
 
             if (wishlistIdToFetch) {
@@ -45,7 +42,6 @@ const ItemList = () => {
               if (!wishlistResponse.ok) throw new Error("Failed to fetch wishlist");
               const wishlistData = await wishlistResponse.json();
 
-              // Handle the wishlist data structure
               const wishlistItems = wishlistData.wishlist?.items || [];
               setWishList(wishlistItems.map(item => ({
                 ...item,
@@ -100,9 +96,8 @@ const ItemList = () => {
       }
 
       const data = await response.json();
-      console.log('Remove response:', data); // Debug log
+      console.log('Remove response:', data);
 
-      // Update local state
       setWishList(updatedWishlist);
     } catch (error) {
       console.error("Error removing item:", error);
@@ -124,7 +119,6 @@ const ItemList = () => {
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
       if (!csrfToken) throw new Error("CSRF token not found");
 
-      // Check if we have items to save
       if (!wishlist || wishlist.length === 0) {
         throw new Error("Please add items to your wishlist before saving");
       }
@@ -166,10 +160,8 @@ const ItemList = () => {
         throw new Error("Invalid response format from server");
       }
 
-      // Update the wishlist state with the new data
       setWishlistId(data.wishlist.id);
       
-      // Handle the case where items might be empty
       const newItems = data.wishlist.items || [];
       setWishList(newItems.map(item => ({
         ...item,
@@ -184,19 +176,31 @@ const ItemList = () => {
   };
 
   const fetchItems = () => {
-    fetch(`http://localhost:3000/items.json?search=${searchQuery}`)
+    const searchParams = new URLSearchParams();
+
+    if (searchQuery.trim()) {
+      searchParams.set('search', searchQuery.trim());
+    }
+
+    if (params.category) searchParams.set('category', params.category);
+    if (params.age) searchParams.set('age', params.age);
+    if (params.gender) searchParams.set('gender', params.gender);
+    if (params.minPrice) searchParams.set('minPrice', params.minPrice);
+    if (params.maxPrice) searchParams.set('maxPrice', params.maxPrice);
+
+    fetch(`/items.json?${searchParams}`)
       .then((response) => response.json())
-      .then((data) => {
-        setItems(data)
-      })
+      .then((data) => setItems(data))
       .catch((error) => console.error("Error fetching items:", error));
   };
-  
-  const handleSearch = () => {
-    if (searchQuery.trim() !== "") {
-      fetchItems();
-    }
-  };
+
+  const handleSearch = debounce(() => {
+    fetchItems();
+  }, 300);
+
+  useEffect(() => {
+    fetchItems();
+  }, []); 
   
   return (
     <div className="main-container">
@@ -257,7 +261,7 @@ const ItemList = () => {
             </div>
           </div>
 
-          {/* Wishlist Section - Always visible */}
+
           <div className="wishlist-card">
             <h3>{wishlistId ? 'My Wishlist' : 'Create My Wishlist'}</h3>
             {wishlist.length > 0 ? (

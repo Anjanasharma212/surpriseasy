@@ -1,13 +1,11 @@
 module Wishlists
   class WishlistService
-    class WishlistError < StandardError; end
 
     def initialize(participant)
       @participant = participant
     end
 
     def create_with_items(params)
-      # Handle both item_ids and wishlist_items_attributes for backward compatibility
       items_to_create = if params[:item_ids].present?
                          params[:item_ids].map { |id| { item_id: id } }
                        else

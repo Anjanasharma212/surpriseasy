@@ -1,12 +1,13 @@
 class GroupsController < ApplicationController
-  before_action :set_group, only: [:show, :destroy]
-  before_action :authorize_group_access, only: [:show]
+  before_action :set_group, only: [:show, :update, :destroy]
+  after_action :verify_authorized, except: :index
+  after_action :verify_policy_scoped, only: :index
   rescue_from ActiveRecord::RecordNotFound, with: :handle_record_not_found
 
   def group_generator;end
 
   def index
-    @groups = current_user.participant_groups
+    @groups = policy_scope(Group)
     
     respond_to do |format|
       format.html
@@ -15,14 +16,18 @@ class GroupsController < ApplicationController
   end
 
   def show
+    authorize @group
+    group_details = GroupSerializer.new(@group, current_user).format_group_details
     respond_to do |format|
       format.html
-      format.json { render_group_details }
+      format.json { render json: group_details }
     end
   end
 
   def create
     @group = Group.new(group_params)
+    @group.user = current_user
+    authorize @group
 
     if @group.save
       begin
@@ -39,13 +44,33 @@ class GroupsController < ApplicationController
     end
   end
 
-  def destroy
-    result = GroupService.new(@group).remove
-    
-    if result[:success]
-      render json: { message: result[:message] }, status: :ok
+  def update
+    authorize @group
+    if @group.update(group_params)
+      respond_to do |format|
+        format.html { redirect_to @group, notice: 'Group was successfully updated.' }
+        format.json { render json: @group }
+      end
     else
-      render json: { error: result[:error] }, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :edit }
+        format.json { render json: @group.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def destroy
+    authorize @group
+    result = Groups::DeletionService.new(@group).execute
+    
+    respond_to do |format|
+      if result[:success]
+        format.html { redirect_to groups_path, notice: result[:message] }
+        format.json { head :no_content }
+      else
+        format.html { redirect_to groups_path, alert: result[:error] }
+        format.json { render json: { error: result[:error] }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -59,24 +84,16 @@ class GroupsController < ApplicationController
     end
   end
 
-  def render_group_details
-    render json: GroupSerializer.new(@group, current_user).format_group_details
-  end
-
   def render_not_found(message)
     render json: { error: message }, status: :not_found
   end
   
   def set_group
+    return handle_record_not_found unless Group.exists?(params[:id])
+    
     @group = Group.includes(group_includes).find(params[:id])
   end
 
-  def authorize_group_access
-    unless @group&.participants&.exists?(user_id: current_user.id)
-      render json: { error: t('groups.errors.unauthorized') }, status: :forbidden
-    end
-  end
-  
   def group_params
     params.require(:group).permit(
       :group_name, 

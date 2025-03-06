@@ -28,7 +28,6 @@ const GroupShow = () => {
       })
       .then((data) => {
         setGroup(data);
-        // Find drawn participant if drawn_name_id exists
         if (data.logged_in_participant?.drawn_name_id) {
           const drawn = data.participants.find(p => p.id === data.logged_in_participant.drawn_name_id);
           setDrawnParticipant(drawn);
@@ -61,9 +60,8 @@ const GroupShow = () => {
     setError(null);
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     
-    // Updated to use RESTful update endpoint
     fetch(`/participants/${participantId}`, {
-      method: "POST",
+      method: "PATCH",
       headers: { 
         "Content-Type": "application/json", 
         "Accept": "application/json",
