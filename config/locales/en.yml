@@ -30,10 +30,10 @@
 en:
   groups:
     errors:
-      unauthorized: "You are not authorized to view this group"
+      unauthorized: "You are not authorized to perform this action"
       delete_failed: "Failed to delete group"
       not_found: "Group not found"
-      no_groups: "No groups found"
+      no_groups: "No groups found. Create your first group!"
       not_participant: "You are not a participant in this group"
       invalid_format: "Invalid request format"
       parameter_missing: "Required parameters missing"
@@ -75,4 +75,10 @@ en:
       unauthorized: "You are not authorized to access this wishlist"
       invalid_items: "Invalid item IDs: %{items}"
       item_not_found: "Item does not exist"
+  items:
+    errors:
+      negative_price: "Price cannot be negative"
+      negative_min_price: "Minimum price cannot be negative"
+      negative_max_price: "Maximum price cannot be negative"
+      invalid_price_range: "Maximum price must be greater than minimum price"
 

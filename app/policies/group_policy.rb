@@ -1,9 +1,7 @@
 class GroupPolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
-      scope.joins(:participants)
-           .where(participants: { user_id: user.id })
-           .distinct
+      scope.for_user(user)
     end
   end
 
@@ -24,7 +22,7 @@ class GroupPolicy < ApplicationPolicy
   end
 
   def destroy?
-    owner?
+    user.present? && (record.user_id == user.id || record.participants.exists?(user_id: user.id))
   end
 
   def draw_names?

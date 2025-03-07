@@ -4,7 +4,6 @@ class WishlistsController < ApplicationController
 
   before_action :set_participant
   before_action :set_wishlist, only: [:show, :update, :destroy]
-  before_action :authorize_wishlist_access, only: [:show, :update, :destroy]
 
   def index
     @wishlists = @participant.wishlists
@@ -14,7 +13,8 @@ class WishlistsController < ApplicationController
   end
 
   def show
-    render json: WishlistSerializer.new(@wishlist).format_wishlist_details
+    authorize @wishlist
+    render json: WishlistSerializer.new(@wishlist, current_user).format_wishlist_details
   end
 
   def create
@@ -51,10 +51,8 @@ class WishlistsController < ApplicationController
 
   def set_participant
     @participant = if params[:participant_id]
-      # For nested route: /groups/:group_id/participants/:participant_id/wishlists
       Participant.find(params[:participant_id])
     else
-      # For direct route: /wishlists/:id
       @wishlist = Wishlist.find(params[:id])
       @wishlist.participant
     end
@@ -72,11 +70,9 @@ class WishlistsController < ApplicationController
     )
   end
 
-  def authorize_wishlist_access
-    unless @wishlist.participant.user == current_user
-      render json: { error: I18n.t('wishlists.errors.unauthorized') }, 
-             status: :forbidden
-    end
+  def user_not_authorized
+    render json: { error: I18n.t('wishlists.errors.unauthorized') }, 
+           status: :forbidden
   end
 
   def handle_not_found

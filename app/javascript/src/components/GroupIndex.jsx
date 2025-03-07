@@ -46,26 +46,44 @@ const GroupIndex = () => {
     if (!window.confirm("Are you sure you want to delete this group?")) {
       return;
     }
+    
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
     try {
       const response = await fetch(`/groups/${groupId}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
           'X-CSRF-Token': csrfToken
         },
-        credentials: "include",
+        credentials: 'include'
       });
 
-      if (response.ok) {
-        setGroups((prevGroups) => prevGroups.filter(group => group.id !== groupId));
+      if (response.status === 204) { 
+        setGroups(prevGroups => prevGroups.filter(group => group.id !== groupId));
+        alert('Group successfully deleted');
+        return;
+      }
+
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = { error: 'An unexpected error occurred' };
+      }
+
+      if (response.status === 403) {
+        alert('You are not authorized to delete this group');
+      } else if (response.status === 404) {
+        alert('Group not found');
+      } else if (response.status === 500) {
+        alert('A server error occurred. Please try again later.');
       } else {
-        const errorData = await response.json();
-        alert(errorData.error || "Failed to delete the group.");
+        alert(errorData.error || 'Failed to delete the group');
       }
     } catch (error) {
-      console.error("Error deleting group:", error);
+      alert('An error occurred while trying to delete the group. Please try again.');
     }
   };
 
@@ -88,7 +106,7 @@ const GroupIndex = () => {
                         {group.group_name}
                       </a>
                     </h5>
-
+                
                     <a href={`/groups/group/${group.id}`} className="group-event-date">
                       <p><span>📅</span>
                         {new Date(group.event_date).toLocaleDateString("en-US", {

@@ -204,7 +204,7 @@ const GroupShow = () => {
             {group?.logged_in_participant ? (
               (() => {
                 const currentParticipant = group.participants.find(
-                  p => p.participant_id === group.logged_in_participant.id
+                  p => p.id === group.logged_in_participant.id
                 );
                 
                 if (currentParticipant?.wishlist_id && currentParticipant?.wishlist_items_count > 0) {

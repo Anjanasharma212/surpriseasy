@@ -1,10 +1,11 @@
 class GroupsController < ApplicationController
   before_action :set_group, only: [:show, :update, :destroy]
-  after_action :verify_authorized, except: :index
-  after_action :verify_policy_scoped, only: :index
   rescue_from ActiveRecord::RecordNotFound, with: :handle_record_not_found
+  rescue_from StandardError, with: :handle_standard_error
 
-  def group_generator;end
+  def group_generator
+    render :group_generator
+  end
 
   def index
     @groups = policy_scope(Group)
@@ -48,7 +49,7 @@ class GroupsController < ApplicationController
     authorize @group
     if @group.update(group_params)
       respond_to do |format|
-        format.html { redirect_to @group, notice: 'Group was successfully updated.' }
+        format.html { redirect_to @group, notice: t('groups.success.updated') }
         format.json { render json: @group }
       end
     else
@@ -61,16 +62,10 @@ class GroupsController < ApplicationController
 
   def destroy
     authorize @group
-    result = Groups::DeletionService.new(@group).execute
-    
-    respond_to do |format|
-      if result[:success]
-        format.html { redirect_to groups_path, notice: result[:message] }
-        format.json { head :no_content }
-      else
-        format.html { redirect_to groups_path, alert: result[:error] }
-        format.json { render json: { error: result[:error] }, status: :unprocessable_entity }
-      end
+    if @group.destroy
+      head :no_content
+    else
+      render json: { error: t('groups.errors.delete_failed') }, status: :unprocessable_entity
     end
   end
 
@@ -89,9 +84,9 @@ class GroupsController < ApplicationController
   end
   
   def set_group
-    return handle_record_not_found unless Group.exists?(params[:id])
-    
-    @group = Group.includes(group_includes).find(params[:id])
+    @group = Group.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    handle_record_not_found
   end
 
   def group_params
@@ -114,6 +109,13 @@ class GroupsController < ApplicationController
         }
       }
     }
+  end
+
+  def handle_standard_error(exception)
+    respond_to do |format|
+      format.html { redirect_to groups_path, alert: 'An error occurred.' }
+      format.json { render json: { error: 'An error occurred while processing your request.' }, status: :internal_server_error }
+    end
   end
 
   def handle_record_not_found

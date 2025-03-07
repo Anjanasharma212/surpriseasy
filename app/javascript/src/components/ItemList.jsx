@@ -16,13 +16,13 @@ const ItemList = () => {
   const [participantId, setParticipantId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
         setError(null);
-
         const itemsResponse = await fetch("/items.json");
         if (!itemsResponse.ok) throw new Error("Failed to fetch items");
         const itemsData = await itemsResponse.json();
@@ -39,8 +39,13 @@ const ItemList = () => {
 
             if (wishlistIdToFetch) {
               const wishlistResponse = await fetch(`/wishlists/${wishlistIdToFetch}.json`);
-              if (!wishlistResponse.ok) throw new Error("Failed to fetch wishlist");
+              if (!wishlistResponse.ok) {
+                console.error('Wishlist Response:', wishlistResponse.status);
+                throw new Error("Failed to fetch wishlist");
+              }
               const wishlistData = await wishlistResponse.json();
+              
+              setIsOwner(wishlistData.wishlist?.is_owner || false);
 
               const wishlistItems = wishlistData.wishlist?.items || [];
               setWishList(wishlistItems.map(item => ({
@@ -96,8 +101,6 @@ const ItemList = () => {
       }
 
       const data = await response.json();
-      console.log('Remove response:', data);
-
       setWishList(updatedWishlist);
     } catch (error) {
       console.error("Error removing item:", error);
@@ -105,13 +108,21 @@ const ItemList = () => {
     }
   };
 
-  const toggleWishlist = (item) => {
-    setWishList(currentWishlist => {
-      const isItemInWishlist = currentWishlist.some(wishItem => wishItem.id === item.id);
-      return isItemInWishlist
-        ? currentWishlist.filter(wishItem => wishItem.id !== item.id)
-        : [...currentWishlist, { ...item, wishlist_item_id: undefined }];
-    });
+  const toggleWishlist = async (item) => {
+    const isItemInWishlist = wishlist.some(wishItem => wishItem.id === item.id);
+
+    if (isItemInWishlist) {
+      const wishlistItem = wishlist.find(w => w.id === item.id);
+      if (wishlistItem) {
+        await handleRemove(wishlistItem);
+      }
+    } else {
+
+      setWishList(currentWishlist => [
+        ...currentWishlist,
+        { ...item, wishlist_item_id: undefined }
+      ]);
+    }
   };
 
   const saveWishlist = async () => {
@@ -137,8 +148,6 @@ const ItemList = () => {
         }
       };
 
-      console.log('Sending wishlist data:', wishlistData); // Debug log
-
       const response = await fetch(url, {
         method,
         headers: {
@@ -154,8 +163,6 @@ const ItemList = () => {
       }
 
       const data = await response.json();
-      console.log('Received response:', data); // Debug log
-
       if (!data || !data.wishlist) {
         throw new Error("Invalid response format from server");
       }
@@ -242,14 +249,16 @@ const ItemList = () => {
                         ${typeof item.price === 'number' ? item.price.toFixed(2) : item.price}
                       </p>
                       <p className="item-description">{item.description}</p>
-                      <button
-                        className={`wishlist-btn ${
-                          wishlist.some((w) => w.id === item.id) ? "added" : ""
-                        }`}
-                        onClick={() => toggleWishlist(item)}
-                      >
-                        {wishlist.some((w) => w.id === item.id) ? "❤️" : "🤍"}
-                      </button>
+                      {isOwner && (
+                        <button
+                          className={`wishlist-btn ${
+                            wishlist.some((w) => w.id === item.id) ? "added" : ""
+                          }`}
+                          onClick={() => toggleWishlist(item)}
+                        >
+                          {wishlist.some((w) => w.id === item.id) ? "❤️" : "🤍"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))
@@ -263,7 +272,9 @@ const ItemList = () => {
 
 
           <div className="wishlist-card">
-            <h3>{wishlistId ? 'My Wishlist' : 'Create My Wishlist'}</h3>
+            <h3>
+              {wishlistId ? 'My Wishlist' : 'Create My Wishlist'}
+            </h3>
             {wishlist.length > 0 ? (
               <>
                 <div className="wishlist-items">
@@ -274,24 +285,28 @@ const ItemList = () => {
                         <p className="item-name">{item.item_name}</p>
                         <p className="item-price">${item.price}</p>
                       </div>
-                      <button 
-                        className="remove-btn" 
-                        onClick={() => handleRemove(item)}
-                      >
-                        Remove
-                      </button>
+                      {isOwner && (
+                        <button 
+                          className="remove-btn" 
+                          onClick={() => handleRemove(item)}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
                 <div className="wishlist-actions">
-                  <button className="save-btn" onClick={saveWishlist}>
-                    {wishlistId ? 'Update Wishlist' : 'Save Wishlist'}
-                  </button>
+                  {isOwner && (
+                    <button className="save-btn" onClick={saveWishlist}>
+                      {!wishlistId || wishlist.some(item => !item.wishlist_item_id) 
+                        ? 'Make a Wish List' 
+                        : 'Update Wishlist'
+                      }
+                    </button>
+                  )}
                   {wishlistId && (
-                    <a 
-                      href={`/groups/${groupId}`} 
-                      className="back-btn"
-                    >
+                    <a href={`/groups/${groupId}`} className="back-btn">
                       Back to Group
                     </a>
                   )}
