@@ -19,7 +19,6 @@ FactoryBot.define do
       receiver { nil }
     end
 
-    # For creating messages without specific attributes
     trait :without_content do
       content { nil }
     end

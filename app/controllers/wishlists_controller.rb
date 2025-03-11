@@ -1,7 +1,4 @@
 class WishlistsController < ApplicationController
-  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
-  rescue_from StandardError, with: :render_error
-
   before_action :set_participant
   before_action :set_wishlist, only: [:show, :update, :destroy]
 
@@ -18,46 +15,52 @@ class WishlistsController < ApplicationController
   end
 
   def create
+    authorize Wishlist.new(participant: @participant)
     result = Wishlists::WishlistService.new(@participant)
-                                     .create_with_items(wishlist_params[:wishlist_items_attributes])
+                                     .create_with_items(wishlist_params)
     
     if result[:success]
       render json: result[:wishlist], status: :created
     else
-      render_error(result[:error])
+      render json: { error: result[:error] }, status: :unprocessable_entity
     end
   end
 
   def update
-    ActiveRecord::Base.transaction do
-      if @wishlist.update(wishlist_params)
-        render json: WishlistSerializer.new(@wishlist.reload).format_wishlist_details
-      else
-        render_error(@wishlist.errors.full_messages.join(", "))
-      end
+    authorize @wishlist
+    result = Wishlists::WishlistService.new(@participant)
+                                     .update_wishlist(@wishlist, wishlist_params)
+    
+    if result[:success]
+      render json: result[:wishlist], status: :ok
+    else
+      render json: { error: result[:error] }, status: :unprocessable_entity
     end
-  rescue StandardError => e
-    render_error(e.message)
   end
 
   def destroy
-    @wishlist.destroy!
-    head :no_content
-  rescue StandardError => e
-    render_error(e.message)
+    authorize @wishlist
+    if @wishlist.destroy
+      head :no_content
+    else
+      render json: { error: I18n.t('errors.deletion_failed') }, 
+             status: :unprocessable_entity
+    end
   end
 
   private
 
   def set_participant
-    @participant = if params[:participant_id]
-      Participant.find(params[:participant_id])
+    if params[:participant_id].present?
+      @participant = Participant.find(params[:participant_id])
     else
       @wishlist = Wishlist.find(params[:id])
-      @wishlist.participant
+      @participant = @wishlist.participant
     end
-  end
-
+  rescue ActiveRecord::RecordNotFound => e
+    handle_not_found
+  end  
+  
   def set_wishlist
     @wishlist = Wishlist.includes(wishlist_items: :item).find(params[:id])
   end
@@ -70,16 +73,10 @@ class WishlistsController < ApplicationController
     )
   end
 
-  def user_not_authorized
-    render json: { error: I18n.t('wishlists.errors.unauthorized') }, 
-           status: :forbidden
-  end
-
   def handle_not_found
-    render json: { error: I18n.t('errors.record_not_found') }, 
-           status: :not_found
+    render json: { error: I18n.t('errors.record_not_found') }, status: :not_found
   end
-
+  
   def render_error(message)
     render json: { error: message }, 
            status: :unprocessable_entity

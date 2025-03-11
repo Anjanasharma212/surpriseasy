@@ -38,6 +38,7 @@ RSpec.describe Assignment, type: :model do
       expect(assignment.save).to be false
       expect(assignment.errors[:group]).to include("must exist")
     end
+  end
 
   describe 'business logic' do
     let(:group) { create(:group) }

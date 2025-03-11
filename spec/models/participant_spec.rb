@@ -47,18 +47,13 @@ RSpec.describe Participant, type: :model do
 
   describe 'drawn name functionality' do
     it 'can be assigned a drawn name' do
-      # Create users
       user1 = User.create!(name: 'User 1', email: 'user1@example.com', password: 'password123')
       user2 = User.create!(name: 'User 2', email: 'user2@example.com', password: 'password123')
       
-      # Create group
       group = Group.create!(group_name: 'Test Group', user: user1, budget: 100)
-      
-      # Create participants
       participant1 = Participant.create!(user: user1, group: group, is_admin: true)
       participant2 = Participant.create!(user: user2, group: group, is_admin: false)
-      
-      # Assign drawn name
+
       participant1.drawn_name = participant2
       
       expect(participant1.save).to be true

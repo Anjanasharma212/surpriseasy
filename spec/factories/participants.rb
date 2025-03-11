@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :participant do
-    association :user
-    association :group
+    user
+    group
     is_admin { false }
 
     trait :as_admin do

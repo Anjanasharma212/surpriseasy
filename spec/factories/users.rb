@@ -1,9 +1,10 @@
 FactoryBot.define do
   factory :user do
-    sequence(:email) { |n| "test#{n}@example.com" }
+    sequence(:email) { |n| "user#{n}@example.com" }
     sequence(:name) { |n| "Test User #{n}" }
-    password { 'password123' }
-    password_confirmation { 'password123' }
+    password { "password123" }
+    password_confirmation { "password123" }
+
 
     trait :invitation_accepted do
       after(:create) do |user|

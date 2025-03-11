@@ -52,6 +52,7 @@ group :development, :test do
 
   gem 'rspec-rails'
   gem 'factory_bot_rails'
+  gem 'faker'
 end
 
 group :development do
@@ -68,6 +69,10 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+  gem 'shoulda-matchers'
+  gem 'database_cleaner-active_record'
+  gem "pry"
+  gem 'rails-controller-testing'
 end
 
 gem "shakapacker", "= 8.1"

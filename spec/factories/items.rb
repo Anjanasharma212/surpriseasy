@@ -1,9 +1,9 @@
 FactoryBot.define do
   factory :item do
-    item_name { Faker::Commerce.product_name }
-    price { Faker::Commerce.price(range: 10.0..1000.0) }
-    description { Faker::Lorem.paragraph }
-    image_url { Faker::Internet.url }
+    sequence(:item_name) { |n| "Item #{n}" }
+    price { 100.0 }
+    description { "A test item" }
+    image_url { "http://example.com/image.jpg" }
     age { ['0-12', '13-18', '18+'].sample }
     gender { ['Male', 'Female', 'Unisex'].sample }
     category { Faker::Commerce.department }

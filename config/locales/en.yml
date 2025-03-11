@@ -57,15 +57,19 @@ en:
   participants:
     errors:
       not_found: "Participant not found"
-      no_drawn_name: "No drawn name assigned yet"
+      no_drawn_name: "No name has been drawn yet"
       already_drawn: "You have already drawn a name"
       no_available_participants: "No available participants left"
     success:
-      name_drawn: "Drawn name assigned!"
+      name_drawn: "Successfully drew a name"
   errors:
     record_not_found: "Record not found"
     unauthorized: "Unauthorized access"
-    not_authorized: "You are not authorized to perform this action"
+    not_authorized: "Not authorized"
+    group:
+      not_found: "Group not found"
+    invalid_format: "Invalid format"
+    parameter_missing: "Required parameter is missing"
   
   wishlists:
     errors:

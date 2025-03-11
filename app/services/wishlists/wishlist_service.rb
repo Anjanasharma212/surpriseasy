@@ -53,12 +53,17 @@ module Wishlists
 
     def validate_items(items_attributes)
       return if items_attributes.blank?
+      active_items = items_attributes.reject do |attr| 
+        attr[:_destroy] == '1' || attr['_destroy'] == true
+      end
+      return if active_items.blank?
+      item_ids = active_items.map do |attr|
+        (attr[:item_id] || attr['item_id']).to_s
+      end.compact
 
-      item_ids = items_attributes.map { |attr| attr[:item_id] || attr }
-      existing_items = Item.where(id: item_ids)
-      
-      missing_items = item_ids - existing_items.pluck(:id)
-      if missing_items.any?
+      existing_item_ids = Item.where(id: item_ids).pluck(:id).map(&:to_s)
+      missing_items = item_ids - existing_item_ids
+      if missing_items.present?
         raise StandardError, I18n.t('wishlists.errors.invalid_items', 
                                    items: missing_items.join(', '))
       end

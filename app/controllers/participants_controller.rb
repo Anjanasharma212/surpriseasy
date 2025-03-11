@@ -1,6 +1,6 @@
 class ParticipantsController < ApplicationController
-  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
   rescue_from StandardError, with: :render_error
+  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
 
   before_action :set_participant, only: [:show, :update]
 
@@ -12,7 +12,7 @@ class ParticipantsController < ApplicationController
   end
 
   def update
-    result = ParticipantService.new(@participant).draw_name
+    result = Participants::ParticipantService.new(@participant).draw_name
 
     if result[:success]
       handle_success_response(result)
@@ -24,7 +24,9 @@ class ParticipantsController < ApplicationController
   private
 
   def set_participant
-    @participant = Participant.find(params[:id])
+    # @participant = Participant.find(params[:id])
+    @participant = Participant.includes(:drawn_name, :user, wishlists: { wishlist_items: :item })
+                            .find(params[:id])
   end
 
   def handle_success_response(result)

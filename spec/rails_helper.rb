@@ -11,6 +11,10 @@ require 'rspec/rails'
 require 'devise'
 require 'pundit/rspec'
 require 'database_cleaner/active_record'
+require 'warden'
+require 'rails-controller-testing'
+require_relative 'support/devise_support'
+require_relative 'support/controller_macros'
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -39,10 +43,30 @@ end
 require 'factory_bot_rails'
 
 RSpec.configure do |config|
-  # Add FactoryBot methods
-  config.include FactoryBot::Syntax::Methods
+  config.include Devise::Test::ControllerHelpers, type: :controller
+  config.include Devise::Test::IntegrationHelpers, type: :request
+  
+  config.extend ControllerMacros, type: :controller
 
-  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
+  config.include Warden::Test::Helpers
+  
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+    Warden.test_mode!
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
+    Warden.test_reset!
+  end
+
+  config.extend DeviseSupport, type: :controller
+  config.include FactoryBot::Syntax::Methods
   config.fixture_paths = [
     Rails.root.join('spec/fixtures')
   ]
@@ -77,19 +101,6 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
-  config.include Devise::Test::ControllerHelpers, type: :controller
-
-  config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.clean_with(:truncation)
-  end
-
-  config.around(:each) do |example|
-    DatabaseCleaner.cleaning do
-      example.run
-    end
-  end
-
   # Add ActiveJob testing configuration
   config.include ActiveJob::TestHelper
   config.before(:each) do
@@ -98,6 +109,12 @@ RSpec.configure do |config|
 
   config.after(:each) do
     ActiveJob::Base.queue_adapter.enqueued_jobs.clear
+  end
+
+  [:controller, :view, :request].each do |type|
+    config.include ::Rails::Controller::Testing::TestProcess, type: type
+    config.include ::Rails::Controller::Testing::TemplateAssertions, type: type
+    config.include ::Rails::Controller::Testing::Integration, type: type
   end
 end
 
