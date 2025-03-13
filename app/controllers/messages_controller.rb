@@ -2,9 +2,6 @@ class MessagesController < ApplicationController
   before_action :set_group
   before_action :check_participant, only: [:index, :create]
 
-  rescue_from ActiveRecord::RecordInvalid, with: :handle_invalid_record
-  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
-
   def index
     @messages = @group.messages
       .includes(:sender)
@@ -15,20 +12,13 @@ class MessagesController < ApplicationController
 
   def create
     @message = @group.messages.new(message_params.merge(sender: current_user))
-    @message.save!
-
-    if @message.is_anonymous?
-      begin
-        MessageJob.perform_later(@message.id)
-      rescue StandardError
-        return render json: {
-          message: @message,
-          warning: t('groups.messages.warnings.notification_delayed')
-        }, status: :created
-      end
+    
+    if @message.save
+      handle_anonymous_message
+      render json: @message, status: :created
+    else
+      render_error(@message.errors.full_messages.to_sentence)
     end
-
-    render json: @message, status: :created
   end
 
   private
@@ -39,12 +29,18 @@ class MessagesController < ApplicationController
 
   def check_participant
     unless @group.participants.exists?(user_id: current_user.id)
-      render json: { error: I18n.t('groups.errors.not_participant') }, status: :forbidden
+      render_error(I18n.t('groups.errors.not_participant'), :forbidden)
     end
   end
 
   def message_params
     params.require(:message).permit(:content, :receiver_id, :is_anonymous)
+  end
+
+  def handle_anonymous_message
+    MessageJob.perform_later(@message.id) if @message.is_anonymous?
+  rescue StandardError => e
+    render_error(I18n.t('groups.messages.warnings.notification_delayed'), :created)
   end
 
   def format_message(msg)
@@ -55,14 +51,5 @@ class MessagesController < ApplicationController
       receiver_id: msg.receiver_id,
       sent_at: msg.created_at
     }
-  end
-
-  def handle_invalid_record(exception)
-    render json: { error: exception.record.errors.full_messages }, 
-           status: :unprocessable_entity
-  end
-
-  def handle_not_found
-    render json: { error: I18n.t('groups.errors.not_found') }, status: :not_found
   end
 end

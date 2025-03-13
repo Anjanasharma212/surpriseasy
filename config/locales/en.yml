@@ -85,4 +85,3 @@ en:
       negative_min_price: "Minimum price cannot be negative"
       negative_max_price: "Maximum price cannot be negative"
       invalid_price_range: "Maximum price must be greater than minimum price"
-

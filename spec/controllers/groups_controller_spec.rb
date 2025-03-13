@@ -191,30 +191,11 @@ RSpec.describe GroupsController, type: :controller do
     context "when user is not signed in" do
       before do
         sign_out :user
-        @request.env['devise.mapping'] = Devise.mappings[:user]
-        @request.session = ActionController::TestSession.new
-        @request.env['warden'] = double(
-          authenticate?: false,
-          authenticated?: false,
-          user: nil,
-          message: nil
-        )
-        allow(controller).to receive(:user_signed_in?).and_return(false)
-        allow(controller).to receive(:current_user).and_return(nil)
-        
-        allow(controller).to receive(:authenticate_user!).and_raise(
-          Devise::FailureApp.new.tap do |app|
-            app.default_url_options = { host: 'test.host' }
-          end
-        )
       end
 
       it "redirects to login for protected actions" do
-        expect {
-          get :index
-        }.to raise_error { |error|
-          expect(error).to be_a(Devise::FailureApp)
-        }
+        get :index
+        expect(response).to redirect_to(new_user_session_path)
       end
     end
 
@@ -223,24 +204,13 @@ RSpec.describe GroupsController, type: :controller do
       let(:other_group) { create(:group, user: other_user) }
 
       before do
-        @user = controller.current_user
-        sign_in @user
-        
-        allow(Group).to receive(:find).with(other_group.id.to_s).and_return(other_group)
-        mock_policy = instance_double(GroupPolicy)
-        allow(mock_policy).to receive(:show?).and_return(false)
-        allow(controller).to receive(:policy).with(other_group).and_return(mock_policy)
-        
-        allow(controller).to receive(:authorize).with(other_group) do
-          raise Pundit::NotAuthorizedError.new("not allowed")
-        end
+        login_user
       end
 
       it "prevents unauthorized access" do
         get :show, params: { id: other_group.id }, format: :json
         expect(response).to have_http_status(:forbidden)
-        json = JSON.parse(response.body)
-        expect(json["error"]).to eq(I18n.t('errors.not_authorized'))
+        expect(JSON.parse(response.body)['error']).to eq(I18n.t('errors.not_authorized'))
       end
     end
   end

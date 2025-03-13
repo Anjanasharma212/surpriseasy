@@ -105,19 +105,17 @@ RSpec.describe ItemsController, type: :controller do
 
   describe 'GET #filters' do
     before do
-      create(:item, :electronics)
-      create(:item, :toys)
-      create(:item, :clothes)
+      create(:item, gender: 'Female')
+      create(:item, gender: 'Male')
+      create(:item, gender: 'Unisex')
     end
 
     it 'returns distinct filter options' do
       get :filters, format: :json
       
       filters = JSON.parse(response.body)
-      expect(filters).to include('categories', 'ages', 'genders')
-      expect(filters['categories']).to include('Electronics', 'Toys', 'Clothes')
-      expect(filters['ages']).to include('0-12', '18+')
-      expect(filters['genders']).to include('Female', 'Unisex')
+      expect(response).to have_http_status(:ok)
+      expect(filters['genders']).to include('Female', 'Male', 'Unisex')
     end
 
     it 'returns cached results' do

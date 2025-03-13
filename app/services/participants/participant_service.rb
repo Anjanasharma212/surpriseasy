@@ -18,12 +18,20 @@ module Participants
 
     def validate_drawing_eligibility
       check_existing_drawn_name
+      check_minimum_participants
       check_available_participants
     end
 
     def check_existing_drawn_name
       return unless @participant.drawn_name.present?
       raise StandardError, I18n.t('participants.errors.already_drawn')
+    end
+
+    def check_minimum_participants
+      total_participants = get_group_participants.count
+      if total_participants < 2
+        raise StandardError, I18n.t('participants.errors.minimum_participants_required')
+      end
     end
 
     def check_available_participants
@@ -34,6 +42,7 @@ module Participants
 
     def available_participants
       get_group_participants
+        .includes(:user, :drawn_name, wishlists: { wishlist_items: :item })
         .where.not(id: @participant.id)
         .where(drawn_name_id: nil)
     end
@@ -57,6 +66,10 @@ module Participants
     end
 
     def assign_next_participant(participant, participants, index)
+      if participants.nil? || participants.size < 2
+        raise StandardError, I18n.t('participants.errors.invalid_participants')
+      end
+      
       next_participant = participants[(index + 1) % participants.size]
       participant.update!(drawn_name: next_participant)
     end

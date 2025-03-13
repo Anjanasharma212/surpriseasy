@@ -1,5 +1,5 @@
 class WishlistsController < ApplicationController
-  before_action :set_participant
+  before_action :set_participant, only: [:index, :create]
   before_action :set_wishlist, only: [:show, :update, :destroy]
 
   def index
@@ -22,7 +22,7 @@ class WishlistsController < ApplicationController
     if result[:success]
       render json: result[:wishlist], status: :created
     else
-      render json: { error: result[:error] }, status: :unprocessable_entity
+      render_error(result[:error])
     end
   end
 
@@ -34,7 +34,7 @@ class WishlistsController < ApplicationController
     if result[:success]
       render json: result[:wishlist], status: :ok
     else
-      render json: { error: result[:error] }, status: :unprocessable_entity
+      render_error(result[:error])
     end
   end
 
@@ -43,24 +43,16 @@ class WishlistsController < ApplicationController
     if @wishlist.destroy
       head :no_content
     else
-      render json: { error: I18n.t('errors.deletion_failed') }, 
-             status: :unprocessable_entity
+      render_error(I18n.t('errors.deletion_failed'))
     end
   end
 
   private
 
   def set_participant
-    if params[:participant_id].present?
-      @participant = Participant.find(params[:participant_id])
-    else
-      @wishlist = Wishlist.find(params[:id])
-      @participant = @wishlist.participant
-    end
-  rescue ActiveRecord::RecordNotFound => e
-    handle_not_found
-  end  
-  
+    @participant = Participant.find(params[:participant_id])
+  end
+
   def set_wishlist
     @wishlist = Wishlist.includes(wishlist_items: :item).find(params[:id])
   end
@@ -71,14 +63,5 @@ class WishlistsController < ApplicationController
       :group_id,
       wishlist_items_attributes: [:id, :item_id, :_destroy]
     )
-  end
-
-  def handle_not_found
-    render json: { error: I18n.t('errors.record_not_found') }, status: :not_found
-  end
-  
-  def render_error(message)
-    render json: { error: message }, 
-           status: :unprocessable_entity
   end
 end

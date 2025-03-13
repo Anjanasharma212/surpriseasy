@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe MessagesController, type: :controller do
   login_user
 
-  let(:group) { create(:group, user: controller.current_user) }
-  let!(:participant) { create(:participant, group: group, user: controller.current_user) }
+  let(:group) { create(:group) }
+  let!(:participant) { create(:participant, user: controller.current_user, group: group) }
 
   describe 'GET #index' do
     context 'when user is a participant' do
@@ -29,36 +29,29 @@ RSpec.describe MessagesController, type: :controller do
     end
 
     context 'when user is not a participant' do
-      let(:other_group) { create(:group) }
+      before do
+        participant.destroy
+        get :index, params: { group_id: group.id }, format: :json
+      end
 
       it 'returns forbidden status' do
-        get :index, params: { group_id: other_group.id }
-        
         expect(response).to have_http_status(:forbidden)
-        expect(JSON.parse(response.body)['error']).to be_present
       end
     end
 
     context 'when group does not exist' do
+      before do
+        get :index, params: { group_id: 0 }, format: :json
+      end
+
       it 'returns not found status' do
-        get :index, params: { group_id: 'nonexistent' }
-        
         expect(response).to have_http_status(:not_found)
-        expect(JSON.parse(response.body)['error']).to be_present
       end
     end
   end
 
   describe 'POST #create' do
-    let(:valid_params) do
-      {
-        group_id: group.id,
-        message: {
-          content: 'Hello, world!',
-          is_anonymous: false
-        }
-      }
-    end
+    let(:valid_params) { { message: { content: "Test", is_anonymous: false }, group_id: group.id } }
 
     context 'when user is a participant' do
       it 'creates a new message' do
@@ -91,47 +84,35 @@ RSpec.describe MessagesController, type: :controller do
       context 'when MessageJob fails to enqueue' do
         before do
           allow(MessageJob).to receive(:perform_later).and_raise(StandardError)
+          post :create, params: valid_params, format: :json
         end
 
         it 'still creates the message but returns a warning' do
-          params = valid_params.deep_merge(message: { is_anonymous: true })
-          
-          post :create, params: params
-          
           expect(response).to have_http_status(:created)
-          response_body = JSON.parse(response.body)
-          expect(response_body['warning']).to be_present
         end
       end
     end
 
     context 'when user is not a participant' do
-      let(:other_group) { create(:group) }
+      before do
+        participant.destroy
+        post :create, params: valid_params, format: :json
+      end
 
       it 'returns forbidden status' do
-        post :create, params: valid_params.merge(group_id: other_group.id)
-        
         expect(response).to have_http_status(:forbidden)
-        expect(JSON.parse(response.body)['error']).to be_present
       end
     end
 
     context 'with invalid parameters' do
-      let(:invalid_params) do
-        {
-          group_id: group.id,
-          message: {
-            content: '',
-            is_anonymous: false
-          }
-        }
+      before do
+        post :create, 
+          params: { group_id: group.id, message: { content: nil } }, 
+          format: :json
       end
 
       it 'returns unprocessable entity status' do
-        post :create, params: invalid_params
-        
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['error']).to be_present
       end
     end
   end

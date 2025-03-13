@@ -24,7 +24,7 @@ RSpec.describe WishlistsController, type: :controller do
         participant_id: 999999
       }
       expect(response).to have_http_status(:not_found)
-      expect(JSON.parse(response.body)['error']).to eq(I18n.t('errors.record_not_found'))
+      expect(JSON.parse(response.body)['error']).to eq(I18n.t('participants.errors.not_found'))
     end       
   end
 

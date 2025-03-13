@@ -29,6 +29,8 @@ class ParticipantSerializer
   end
 
   def format_user(user)
+    return {} unless user
+
     {
       id: user.id,
       name: user.name,
@@ -43,7 +45,7 @@ class ParticipantSerializer
   end
 
   def format_wishlist(wishlist)
-    return nil unless wishlist
+    return {} unless wishlist
 
     {
       id: wishlist.id,
@@ -53,10 +55,14 @@ class ParticipantSerializer
   end
 
   def format_wishlist_items(items)
+    return [] unless items
+
     items.map { |item| format_wishlist_item(item) }
   end
 
   def format_wishlist_item(wishlist_item)
+    return {} unless wishlist_item && wishlist_item.item
+
     {
       id: wishlist_item.id,
       item_name: wishlist_item.item.item_name,
