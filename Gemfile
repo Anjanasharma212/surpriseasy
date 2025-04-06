@@ -75,7 +75,7 @@ group :test do
   gem 'rails-controller-testing'
 end
 
-gem "shakapacker", "= 8.1"
+gem "shakapacker", "8.2.0"
 gem 'devise'
 gem 'sidekiq'
 gem 'devise_invitable'
