@@ -1,5 +1,5 @@
 import React from "react";
-import giftExchange from "../../images/home.png";
+// import giftExchange from "../../images/home.png";
 import { Container, Row, Col, Button, Card } from "react-bootstrap";
 
 const Home = () => {
@@ -31,7 +31,7 @@ const Home = () => {
 
         <Col md={6} className="d-flex justify-content-center">
           <Card className="border-0">
-            <Card.Img src={giftExchange} alt="Gift Exchange" className="rounded custom-img-size" />
+            {/* <Card.Img src={giftExchange} alt="Gift Exchange" className="rounded custom-img-size" /> */}
           </Card>
         </Col>
       </Row>

@@ -91,12 +91,38 @@ wishlists.each do |wishlist|
 end
 
 # Create Messages (Group & Anonymous)
+# 110.times do |i|
+#   group = groups.sample
+#   sender = group.users.sample
+#   is_anonymous = [true, false].sample
+
+#   available_receivers = group.users - [sender]
+
+#   message_attributes = {
+#     group: group,
+#     sender: sender,
+#     content: "This is message #{i + 1}",
+#     is_anonymous: is_anonymous
+#   }
+
+#   if is_anonymous
+#     if available_receivers.any?
+#       message_attributes[:receiver] = available_receivers.sample
+#     else
+#       message_attributes[:is_anonymous] = false
+#       message_attributes[:receiver] = nil
+#     end
+#   else
+#     message_attributes[:receiver] = nil
+#   end
+
+#   Message.create!(message_attributes)
+# end
+
 110.times do |i|
   group = groups.sample
   sender = group.users.sample
   is_anonymous = [true, false].sample
-
-  available_receivers = group.users - [sender]
 
   message_attributes = {
     group: group,
@@ -104,17 +130,6 @@ end
     content: "This is message #{i + 1}",
     is_anonymous: is_anonymous
   }
-
-  if is_anonymous
-    if available_receivers.any?
-      message_attributes[:receiver] = available_receivers.sample
-    else
-      message_attributes[:is_anonymous] = false
-      message_attributes[:receiver] = nil
-    end
-  else
-    message_attributes[:receiver] = nil
-  end
 
   Message.create!(message_attributes)
 end
